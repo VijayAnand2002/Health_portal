@@ -21,7 +21,7 @@ paypalrestsdk==1.13.1
 stripe==8.5.0
 
 # Image Handling
-Pillow==10.2.0
+Pillow==10.3.0
 
 # PDF Generation
 reportlab==4.0.9
