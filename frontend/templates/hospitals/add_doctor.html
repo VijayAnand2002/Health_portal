@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Doctor - {{ hospital.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'hospitals:dashboard' %}"
+                            class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'hospitals:manage_doctors' %}"
+                            class="text-decoration-none">Manage Doctors</a></li>
+                    <li class="breadcrumb-item active">Add Doctor</li>
+                </ol>
+            </nav>
+
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white py-4 border-0">
+                    <h4 class="fw-bold mb-0"><i class="bi bi-person-plus me-2"></i>Link a New Doctor</h4>
+                    <p class="mb-0 opacity-75 small">Associate a registered medical professional with your facility</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <div class="alert alert-info border-0 shadow-sm extra-small mb-4">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        Doctors must have an active portal account. Enter their <strong>Government License
+                            Number</strong> to find and link them to your hospital staff registry.
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-muted text-uppercase">License Number</label>
+                            {{ form.license_number }}
+                            {% if form.license_number.errors %}<div class="text-danger small">{{ form.license_number.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary py-2 fw-bold rounded-3">
+                                Find and Add Doctor
+                            </button>
+                            <a href="{% url 'hospitals:manage_doctors' %}"
+                                class="btn btn-light py-2 rounded-3">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

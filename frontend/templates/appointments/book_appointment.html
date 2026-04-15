@@ -1,0 +1,439 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Book Elite Consultation - Dr. {{ doctor.user.get_full_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.4);
+        --premium-blue: #0061ff;
+        --premium-indigo: #6033ee;
+        --premium-gradient: linear-gradient(135deg, var(--premium-blue) 0%, var(--premium-indigo) 100%);
+    }
+
+    body {
+        background: radial-gradient(circle at top right, #eef2ff, #f8fafc);
+    }
+
+    .booking-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 30px;
+        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .doctor-header-card {
+        background: var(--premium-gradient);
+        color: white;
+        border-radius: 30px;
+        padding: 4rem;
+        margin-bottom: 2.5rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 97, 255, 0.15);
+    }
+
+    .doctor-header-card::before {
+        content: '';
+        position: absolute;
+        top: -100px;
+        right: -100px;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+
+    .doctor-avatar-large {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        border: 6px solid rgba(255, 255, 255, 0.2);
+        padding: 4px;
+        background: white;
+        object-fit: cover;
+    }
+
+    .selection-card-input {
+        display: none;
+    }
+
+    .selection-card {
+        border: 2px solid transparent;
+        border-radius: 20px;
+        padding: 2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: white;
+        height: 100%;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.02);
+    }
+
+    .selection-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .selection-card-input:checked+.selection-card {
+        border-color: var(--premium-blue);
+        background: rgba(0, 97, 255, 0.03);
+        box-shadow: 0 10px 25px rgba(0, 97, 255, 0.1);
+    }
+
+    .selection-card i {
+        font-size: 2.5rem;
+        background: var(--premium-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1.5rem;
+        display: block;
+    }
+
+    .form-control,
+    .form-select {
+        border: 2px solid #edf2f7;
+        padding: 1rem 1.4rem;
+        border-radius: 16px;
+        background-color: #fff;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .form-control:focus {
+        border-color: var(--premium-blue);
+        box-shadow: 0 0 0 5px rgba(0, 97, 255, 0.08);
+    }
+
+    .btn-premium {
+        background: var(--premium-gradient);
+        color: white;
+        border: none;
+        padding: 1.2rem 3rem;
+        border-radius: 50px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        transition: all 0.4s ease;
+        box-shadow: 0 15px 35px rgba(0, 97, 255, 0.25);
+    }
+
+    .btn-premium:hover {
+        transform: scale(1.03);
+        box-shadow: 0 20px 45px rgba(0, 97, 255, 0.35);
+        color: white;
+    }
+
+    .attachment-box {
+        border: 3px dashed #e2e8f0;
+        border-radius: 24px;
+        padding: 3rem;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.5);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .attachment-box:hover {
+        border-color: var(--premium-blue);
+        background: #fff;
+        transform: scale(1.01);
+    }
+
+    .urgency-pill {
+        cursor: pointer;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        text-align: center;
+        flex: 1;
+    }
+
+    .urgency-input:checked+.urgency-pill.routine {
+        background: #e0f2fe;
+        color: #0369a1;
+        border-color: #0369a1;
+    }
+
+    .urgency-input:checked+.urgency-pill.urgent {
+        background: #fef3c7;
+        color: #b45309;
+        border-color: #b45309;
+    }
+
+    .urgency-input:checked+.urgency-pill.emergency {
+        background: #fee2e2;
+        color: #b91c1c;
+        border-color: #b91c1c;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e0;
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="booking-container pb-5">
+    <!-- Premium Header -->
+    <div class="doctor-header-card">
+        <div class="row align-items-center">
+            <div class="col-md-auto text-center mb-4 mb-md-0">
+                {% if doctor.user.profile_picture %}
+                <img src="{{ doctor.user.profile_picture.url }}" class="doctor-avatar-large shadow-lg" alt="">
+                {% else %}
+                <div class="doctor-avatar-large d-flex align-items-center justify-content-center mx-auto text-primary">
+                    <i class="bi bi-person-fill display-2"></i>
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md ps-md-5">
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-2 fw-bold">{{ doctor.specialization|default:"Specialist" }}</span>
+                    <span class="badge bg-warning text-dark rounded-pill px-3 py-2 fw-bold"><i
+                            class="bi bi-patch-check-fill me-1"></i>VERIFIED ELITE</span>
+                </div>
+                <h1 class="display-4 fw-black mb-1">Dr. {{ doctor.user.get_full_name }}</h1>
+                <p class="fs-5 opacity-90 mb-4">{{ doctor.qualifications|default:"Senior Medical Consultant" }}</p>
+
+                <div class="row g-4 mt-2">
+                    <div class="col-auto">
+                        <div class="small opacity-75 text-uppercase fw-bold">Experience</div>
+                        <div class="fs-4 fw-bold">{{ doctor.experience_years }}+ Years</div>
+                    </div>
+                    <div class="col-auto border-start border-white border-opacity-25 px-4">
+                        <div class="small opacity-75 text-uppercase fw-bold">Success Rate</div>
+                        <div class="fs-4 fw-bold">99.2%</div>
+                    </div>
+                    <div class="col-auto border-start border-white border-opacity-25 px-4">
+                        <div class="small opacity-75 text-uppercase fw-bold">Patient Rating</div>
+                        <div class="fs-4 fw-bold">4.95/5</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Section 1: Mode & Date -->
+                <div class="glass-card p-5 mb-4">
+                    <div class="d-flex align-items-center mb-5">
+                        <div class="bg-primary text-white rounded-4 p-3 me-4">
+                            <i class="bi bi-calendar2-heart fs-3"></i>
+                        </div>
+                        <div>
+                            <h3 class="fw-bold text-dark mb-0">Consultation Mode</h3>
+                            <p class="text-muted mb-0">Select your preferred mode of meeting</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-6 text-dark">
+                            <label class="form-label fw-bold small text-uppercase mb-3 opacity-50">Consultation
+                                Mode</label>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <input type="radio" class="selection-card-input" name="consultation_type"
+                                        id="mode_video" value="VIDEO">
+                                    <label class="selection-card" for="mode_video">
+                                        <i class="bi bi-camera-video"></i>
+                                        <span class="fw-bold h5 mb-1 d-block">Video</span>
+                                        <span class="small text-muted">Virtual Room</span>
+                                    </label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="radio" class="selection-card-input" name="consultation_type"
+                                        id="mode_audio" value="AUDIO" checked>
+                                    <label class="selection-card" for="mode_audio">
+                                        <i class="bi bi-phone-audiowave"></i>
+                                        <span class="fw-bold h5 mb-1 d-block">Audio</span>
+                                        <span class="small text-muted">Voice Call</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-dark">
+                            <label class="form-label fw-bold small text-uppercase mb-3 opacity-50">Appointment
+                                Date</label>
+                            <div
+                                class="bg-white p-4 rounded-4 shadow-sm border h-100 d-flex flex-column justify-content-center">
+                                {{ form.appointment_date }}
+                                <div id="slots-container" class="mt-3 d-none">
+                                    <label class="form-label fw-bold small text-uppercase mb-2 opacity-50">Available
+                                        Slots</label>
+                                    <div id="slots-list" class="d-flex flex-wrap gap-2">
+                                        <!-- Slots will be injected here -->
+                                    </div>
+                                    {{ form.appointment_time }}
+                                </div>
+                                <div id="no-slots-msg" class="mt-3 small text-danger d-none">
+                                    <i class="bi bi-exclamation-circle me-2"></i>No available slots for this date.
+                                </div>
+                                <div id="initial-msg" class="mt-3 small text-muted"><i
+                                        class="bi bi-info-circle me-2"></i>Select a date to see available time slots.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Priority -->
+                    <label class="form-label fw-bold small text-uppercase mb-3 opacity-50 text-dark">Urgency
+                        Status</label>
+                    <div class="d-flex gap-3 mb-2">
+                        <input type="radio" class="btn-check urgency-input" name="urgency_level" id="urg_1"
+                            value="ROUTINE" checked>
+                        <label class="urgency-pill routine border" for="urg_1">ROUTINE</label>
+
+                        <input type="radio" class="btn-check urgency-input" name="urgency_level" id="urg_2"
+                            value="URGENT">
+                        <label class="urgency-pill urgent border" for="urg_2">URGENT</label>
+
+                        <input type="radio" class="btn-check urgency-input" name="urgency_level" id="urg_3"
+                            value="EMERGENCY">
+                        <label class="urgency-pill emergency border" for="urg_3">EMERGENCY</label>
+                    </div>
+                </div>
+
+                <!-- Section 3: Reason & Symptoms -->
+                <div class="glass-card p-5 mb-4">
+                    <div class="d-flex align-items-center mb-5">
+                        <div class="bg-indigo text-white rounded-4 p-3 me-4"
+                            style="background-color: var(--premium-indigo);">
+                            <i class="bi bi-clipboard2-pulse fs-3"></i>
+                        </div>
+                        <div>
+                            <h3 class="fw-bold text-dark mb-0">Clinical Information</h3>
+                            <p class="text-muted mb-0">Help Dr. {{ doctor.user.get_full_name }} understand better</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 text-dark">
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Symptoms</label>
+                            {{ form.symptoms }}
+                            {% if form.symptoms.errors %}
+                            <div class="text-danger small mt-2">{{ form.symptoms.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Attachments -->
+                <div class="glass-card p-5 mb-5">
+                    <h4 class="fw-bold text-dark mb-4"><i class="bi bi-files me-3 text-primary"></i>Medical Reports</h4>
+                    <div class="attachment-box" onclick="document.getElementById('id_attachment').click();">
+                        <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex p-4 mb-3">
+                            <i class="bi bi-cloud-upload fs-1"></i>
+                        </div>
+                        <h5 class="fw-bold">Upload Previous Histories</h5>
+                        <p class="text-muted">Upload any previous prescriptions, scans, or lab reports.<br><span
+                                class="opacity-50 fs-6">Drag & drop files here</span></p>
+                        <div class="d-none">{{ form.attachment }}</div>
+                        <div id="file-info" class="mt-3 fw-bold text-success display-none"></div>
+                    </div>
+                </div>
+
+                <!-- Final Action -->
+                <div class="glass-card p-4 d-flex flex-column flex-md-row justify-content-between align-items-center">
+                    <div class="text-center text-md-start mb-4 mb-md-0">
+                        <span class="text-uppercase small fw-bold text-muted d-block">Consultation Fee</span>
+                        <span class="h2 fw-black text-primary mb-0">₹{{ doctor.consultation_fee }}</span>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <a href="javascript:history.back()" class="btn btn-light rounded-pill px-4 fw-bold border">GO
+                            BACK</a>
+                        <button type="submit" class="btn btn-premium">BOOK APPOINTMENT</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Handle File Input Display
+    document.getElementById('id_attachment').addEventListener('change', function (e) {
+        const fileInfo = document.getElementById('file-info');
+        if (this.files.length > 0) {
+            fileInfo.innerHTML = `<i class="bi bi-check-circle-fill me-2"></i>Ready to upload: ${this.files[0].name}`;
+            fileInfo.classList.remove('display-none');
+            fileInfo.style.display = 'block';
+        }
+    });
+
+    // Time Slot Selection logic
+    const dateInput = document.getElementById('id_appointment_date');
+    const slotsContainer = document.getElementById('slots-container');
+    const slotsList = document.getElementById('slots-list');
+    const noSlotsMsg = document.getElementById('no-slots-msg');
+    const initialMsg = document.getElementById('initial-msg');
+    const timeInput = document.getElementById('id_appointment_time');
+
+    dateInput.addEventListener('change', function () {
+        const selectedDate = this.value;
+        if (!selectedDate) {
+            slotsContainer.classList.add('d-none');
+            noSlotsMsg.classList.add('d-none');
+            initialMsg.classList.remove('d-none');
+            return;
+        }
+
+        initialMsg.classList.add('d-none');
+        fetch(`/doctors/api/slots/{{ doctor.id }}/?date=${selectedDate}`)
+            .then(response => response.json())
+            .then(data => {
+                slotsList.innerHTML = '';
+                if (data.slots && data.slots.length > 0) {
+                    data.slots.forEach(slot => {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'btn btn-outline-primary btn-sm rounded-pill px-3 slot-btn';
+                        btn.textContent = slot.display_time;
+                        btn.dataset.time = slot.time;
+                        btn.onclick = function () {
+                            document.querySelectorAll('.slot-btn').forEach(b => {
+                                b.classList.remove('btn-primary', 'text-white');
+                                b.classList.add('btn-outline-primary');
+                            });
+                            this.classList.remove('btn-outline-primary');
+                            this.classList.add('btn-primary', 'text-white');
+                            timeInput.value = this.dataset.time;
+                        };
+                        slotsList.appendChild(btn);
+                    });
+                    slotsContainer.classList.remove('d-none');
+                    noSlotsMsg.classList.add('d-none');
+                } else {
+                    slotsContainer.classList.add('d-none');
+                    noSlotsMsg.classList.remove('d-none');
+                    timeInput.value = '';
+                }
+            });
+    });
+
+    // Hover effects for selection cards (optional, already handled by CSS)
+</script>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Appointment Detail - HealthCare Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold mb-0">Appointment #{{ appointment.id }}</h2>
+                <span class="badge 
+                    {% if appointment.status == 'PENDING' %}bg-warning
+                    {% elif appointment.status == 'CONFIRMED' %}bg-success
+                    {% elif appointment.status == 'COMPLETED' %}bg-info
+                    {% else %}bg-danger{% endif %} py-2 px-3 fs-6">
+                    {{ appointment.get_status_display }}
+                </span>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6 text-dark">
+                    <h6 class="text-muted text-uppercase mb-3 small fw-bold">Doctor Details</h6>
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary-subtle text-primary p-2 rounded-circle me-3">
+                            <i class="bi bi-person-badge fs-4"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0">Dr. {{ appointment.doctor.user.get_full_name }}</h5>
+                            <p class="text-muted small mb-0">{{ appointment.doctor.specialization }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 text-dark">
+                    <h6 class="text-muted text-uppercase mb-3 small fw-bold">Schedule & Mode</h6>
+                    <p class="mb-1">
+                        <i class="bi bi-calendar3 me-2 text-primary"></i>
+                        {{ appointment.appointment_date|date:"l, d M Y" }}
+                    </p>
+                    <p class="mb-1"><i class="bi bi-clock me-2 text-primary"></i>
+                        {% if appointment.appointment_time %}
+                        {{ appointment.appointment_time|time:"H:i" }}
+                        {% else %}
+                        <span class="text-muted italic">Time TBD by Doctor</span>
+                        {% endif %}
+                    </p>
+                    <div class="mt-2">
+                        <span class="badge bg-info-subtle text-info border border-info-subtle rounded-pill me-2">
+                            {% if appointment.consultation_type == 'VIDEO' %}<i class="bi bi-camera-video me-1"></i>
+                            {% elif appointment.consultation_type == 'AUDIO' %}<i class="bi bi-phone me-1"></i>
+                            {% else %}<i class="bi bi-building me-1"></i>{% endif %}
+                            {{ appointment.get_consultation_type_display }}
+                        </span>
+                        <span
+                            class="badge 
+                            {% if appointment.urgency_level == 'ROUTINE' %}bg-secondary-subtle text-secondary border-secondary-subtle
+                            {% elif appointment.urgency_level == 'URGENT' %}bg-warning-subtle text-warning border-warning-subtle
+                            {% else %}bg-danger-subtle text-danger border-danger-subtle{% endif %} border rounded-pill">
+                            <i class="bi bi-exclamation-triangle me-1"></i>{{ appointment.get_urgency_level_display }}
+                        </span>
+                    </div>
+                </div>
+
+                <hr class="my-4 border-light">
+
+                {% if appointment.attachment %}
+                <div class="col-12 text-dark">
+                    <h6 class="text-muted text-uppercase mb-3 small fw-bold">Uploaded Reports</h6>
+                    <div class="d-flex align-items-center p-3 border rounded-3 bg-light">
+                        <i class="bi bi-file-earmark-pdf fs-2 text-danger me-3"></i>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold small">{{ appointment.attachment.name|cut:"appointments/attachments/" }}
+                            </div>
+                            <div class="extra-small text-muted">Uploaded for consultation</div>
+                        </div>
+                        <a href="{{ appointment.attachment.url }}" class="btn btn-outline-primary btn-sm"
+                            target="_blank">Download</a>
+                    </div>
+                </div>
+                <hr class="my-4 border-light">
+                {% endif %}
+
+                <div class="col-12">
+                    <h6 class="text-muted text-uppercase mb-3 small fw-bold">Reason for Visit</h6>
+                    <p class="bg-light p-3 rounded-3">{{ appointment.reason }}</p>
+                </div>
+
+                {% if appointment.symptoms %}
+                <div class="col-12">
+                    <h6 class="text-muted text-uppercase mb-3 small fw-bold">Reported Symptoms</h6>
+                    <p class="bg-light p-3 rounded-3">{{ appointment.symptoms }}</p>
+                </div>
+                {% endif %}
+
+                <div class="col-12 mt-4 text-center">
+                    {% if appointment.status == 'CONFIRMED' %}
+                    {% if appointment.consultation %}
+                    <a href="{% url 'consultations:room' appointment.consultation.room_id %}"
+                        class="btn btn-primary btn-lg fw-bold px-5 rounded-pill shadow">
+                        <i class="bi bi-camera-video me-2"></i>Join Consultation Room
+                    </a>
+                    {% elif user == appointment.doctor.user %}
+                    <a href="{% url 'consultations:start' appointment.id %}"
+                        class="btn btn-success btn-lg fw-bold px-5 rounded-pill shadow">
+                        <i class="bi bi-play-circle me-2"></i>Start Consultation
+                    </a>
+                    {% else %}
+                    <p class="text-muted italic small"><i class="bi bi-info-circle me-1"></i>Waiting for doctor to
+                        start the consultation session.</p>
+                    {% endif %}
+                    {% elif appointment.status == 'PENDING' %}
+                    <p class="text-muted italic small"><i class="bi bi-info-circle me-1"></i>Waiting for doctor to
+                        confirm this appointment.</p>
+                    {% endif %}
+
+                    {% if appointment.status == 'PENDING' or appointment.status == 'CONFIRMED' %}
+                    <div class="mt-4 mb-2 d-flex gap-2 justify-content-center">
+                        <a href="{% url 'appointments:edit_appointment' appointment.id %}"
+                            class="btn btn-warning px-4 fw-bold shadow-sm">
+                            <i class="bi bi-pencil-square me-2"></i>Edit Details
+                        </a>
+                        <a href="{% url 'appointments:delete_appointment' appointment.id %}"
+                            class="btn btn-danger px-4 fw-bold shadow-sm">
+                            <i class="bi bi-x-circle me-2"></i>Cancel Appointment
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        {% if user.role == 'PATIENT' %}
+                        <a href="{% url 'patients:dashboard' %}" class="btn btn-outline-secondary px-4 fw-bold">Back to
+                            Dashboard</a>
+                        {% elif user.role == 'DOCTOR' %}
+                        <a href="{% url 'doctors:dashboard' %}" class="btn btn-outline-secondary px-4 fw-bold">Back to
+                            Console</a>
+                        {% elif user.role == 'HOSPITAL_ADMIN' %}
+                        <a href="{% url 'hospitals:dashboard' %}" class="btn btn-outline-secondary px-4 fw-bold">Back to
+                            Portal</a>
+                        {% else %}
+                        <a href="javascript:history.back()" class="btn btn-outline-secondary px-4 fw-bold">Go Back</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancel Appointment - Health Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.4);
+        --premium-red: #ff4d4d;
+        --red-gradient: linear-gradient(135deg, #ff4d4d 0%, #cc0000 100%);
+    }
+
+    body {
+        background: radial-gradient(circle at top right, #fff5f5, #f8fafc);
+    }
+
+    .confirm-container {
+        max-width: 600px;
+        margin: 5rem auto;
+    }
+
+    .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 30px;
+        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.05);
+        padding: 3rem;
+        text-align: center;
+    }
+
+    .warning-icon {
+        font-size: 4rem;
+        color: var(--premium-red);
+        margin-bottom: 2rem;
+    }
+
+    .btn-danger-premium {
+        background: var(--red-gradient);
+        color: white;
+        border: none;
+        padding: 1rem 2.5rem;
+        border-radius: 50px;
+        font-weight: 800;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 20px rgba(255, 77, 77, 0.2);
+    }
+
+    .btn-danger-premium:hover {
+        transform: scale(1.05);
+        box-shadow: 0 15px 30px rgba(255, 77, 77, 0.3);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="confirm-container">
+    <div class="glass-card">
+        <i class="bi bi-exclamation-triangle-fill warning-icon"></i>
+        <h2 class="fw-black text-dark mb-3">Cancel Appointment?</h2>
+        <p class="text-muted mb-5">
+            Are you sure you want to cancel your appointment with <strong>Dr. {{ appointment.doctor.user.get_full_name }}</strong> scheduled for <strong>{{ appointment.appointment_date }}</strong>?
+            This action cannot be undone.
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex gap-3 justify-content-center">
+                <a href="{% url 'appointments:appointment_detail' appointment.id %}"
+                    class="btn btn-light rounded-pill px-4 fw-bold border">GO BACK</a>
+                <button type="submit" class="btn btn-danger-premium">CONFIRM CANCELLATION</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

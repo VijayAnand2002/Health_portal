@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}User Management - Admin Console{% endblock %}
+
+{% block content %}
+<div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">User Management</h2>
+            <p class="text-muted">Select a user group to manage platform access and credentials.</p>
+        </div>
+        <a href="{% url 'admin_dashboard:dashboard' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Doctors Group -->
+        <div class="col-md-4">
+            <a href="{% url 'admin_dashboard:manage_doctors' %}" class="text-decoration-none text-dark">
+                <div class="card h-100 border-0 shadow-sm hover-elevate">
+                    <div class="card-body p-4 text-center">
+                        <div class="bg-primary-subtle text-primary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                            style="width: 70px; height: 70px;">
+                            <i class="bi bi-person-badge fs-2"></i>
+                        </div>
+                        <h4 class="fw-bold">Doctors</h4>
+                        <p class="text-muted small">Verify medical licenses, approve profiles, and manage active medical
+                            staff.</p>
+                        <div class="h3 fw-bold text-primary mb-0">{{ total_doctors }}</div>
+                        <span class="extra-small text-muted text-uppercase">Registered Practitioners</span>
+                    </div>
+                    <div class="card-footer bg-light border-0 py-3 text-center">
+                        <span class="fw-bold text-primary small">Manage Doctors <i
+                                class="bi bi-arrow-right list-inline-item"></i></span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Patients Group -->
+        <div class="col-md-4">
+            <a href="{% url 'admin_dashboard:manage_patients' %}" class="text-decoration-none text-dark">
+                <div class="card h-100 border-0 shadow-sm hover-elevate">
+                    <div class="card-body p-4 text-center">
+                        <div class="bg-success-subtle text-success rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                            style="width: 70px; height: 70px;">
+                            <i class="bi bi-people fs-2"></i>
+                        </div>
+                        <h4 class="fw-bold">Patients</h4>
+                        <p class="text-muted small">Overview of patient registrations, consultation history, and account
+                            activity.</p>
+                        <div class="h3 fw-bold text-success mb-0">{{ total_patients }}</div>
+                        <span class="extra-small text-muted text-uppercase">Registered Patients</span>
+                    </div>
+                    <div class="card-footer bg-light border-0 py-3 text-center">
+                        <span class="fw-bold text-success small">Manage Patients <i
+                                class="bi bi-arrow-right ms-1"></i></span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Administrative Staff Group -->
+        <div class="col-md-4">
+            <a href="{% url 'admin_dashboard:manage_staff' %}" class="text-decoration-none text-dark">
+                <div class="card h-100 border-0 shadow-sm hover-elevate">
+                    <div class="card-body p-4 text-center">
+                        <div class="bg-accent-subtle text-accent rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                            style="width: 70px; height: 70px; background-color: #e0d1ff; color: #6610f2;">
+                            <i class="bi bi-shield-lock fs-2"></i>
+                        </div>
+                        <h4 class="fw-bold">Admin Staff</h4>
+                        <p class="text-muted small">Manage platform administrators and hospital managers' permissions.
+                        </p>
+                        <div class="h3 fw-bold text-accent mb-0" style="color: #6610f2;">{{ total_staff }}</div>
+                        <span class="extra-small text-muted text-uppercase">Platform Personnel</span>
+                    </div>
+                    <div class="card-footer bg-light border-0 py-3 text-center">
+                        <span class="fw-bold text-accent small" style="color: #6610f2;">Manage Staff <i
+                                class="bi bi-arrow-right ms-1"></i></span>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-elevate {
+        transition: all 0.3s ease;
+    }
+
+    .hover-elevate:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+    }
+</style>
+{% endblock %}

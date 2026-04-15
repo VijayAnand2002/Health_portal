@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Cancelled - HealthCare Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+        <div class="card p-5 border-0 shadow-lg">
+            <div class="mb-4">
+                <div class="bg-warning-subtle text-warning rounded-circle d-inline-flex align-items-center justify-content-center"
+                    style="width: 100px; height: 100px;">
+                    <i class="bi bi-x-lg display-3"></i>
+                </div>
+            </div>
+            <h2 class="fw-bold mb-3">Payment Cancelled</h2>
+            <p class="text-muted mb-5">Your payment process was cancelled. No charges were made. If you encountered any issues, please try again or contact support.</p>
+
+            <div class="d-grid gap-2">
+                <a href="{% url 'patients:dashboard' %}" class="btn btn-primary fw-bold py-2">GO TO DASHBOARD</a>
+                <a href="{% url 'patients:search_hospitals' %}" class="btn btn-outline-secondary btn-sm fw-bold py-2 rounded-pill">FIND ANOTHER DOCTOR</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Consultation Room - HealthCare Portal{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/consultation.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 h-100">
+    <div class="row h-100 g-4">
+        <!-- Main Video Area -->
+        <div class="col-lg-9 h-100">
+            <div class="consultation-container h-100">
+                <div id="connection-status" class="badge bg-warning rounded-pill px-3 py-2 shadow-sm mb-2">
+                    <i class="bi bi-broadcast me-2 pulse"></i>Initializing...
+                </div>
+
+                <div
+                    class="video-grid-container flex-grow-1 shadow-lg bg-dark rounded-4 overflow-hidden position-relative">
+                    <!-- Remote Video (Full Screen in Container) -->
+                    <div id="remote-video-wrap" class="w-100 h-100">
+                        <video id="remote-video" autoplay playsinline class="w-100 h-100 object-fit-cover"></video>
+
+                        <!-- Waiting Placeholder -->
+                        <div id="waiting-placeholder"
+                            class="position-absolute top-50 start-50 translate-middle text-center text-white w-100">
+                            <div class="bg-white bg-opacity-10 backdrop-blur p-5 rounded-circle d-inline-block mb-4">
+                                <i class="bi bi-person-fill display-1"></i>
+                            </div>
+                            <h2 class="fw-bold mb-3">Waiting for participant to join...</h2>
+                            <p class="opacity-75">The consultation will start automatically<br>when the other
+                                participant connects.</p>
+                        </div>
+                    </div>
+
+                    <!-- Local Video (Picture-in-Picture) -->
+                    <div id="local-video-wrap"
+                        class="position-absolute bottom-0 end-0 m-4 shadow-lg border border-2 border-white border-opacity-25 rounded-3 overflow-hidden"
+                        style="width: 280px; height: 180px; z-index: 10;">
+                        <video id="local-video" autoplay muted playsinline
+                            class="w-100 h-100 object-fit-cover mirror-mode"></video>
+                        <div
+                            class="position-absolute bottom-0 start-0 w-100 p-2 bg-dark bg-opacity-50 text-white extra-small italic">
+                            You (Self View)
+                        </div>
+                    </div>
+
+                    <!-- Controls Bar -->
+                    <div class="controls-bar position-absolute bottom-0 start-50 translate-middle-x mb-4 d-flex gap-3 p-3 rounded-pill bg-dark bg-opacity-50 backdrop-blur border border-white border-opacity-10"
+                        style="z-index: 20;">
+                        <button onclick="toggleAudio()" class="control-btn" title="Toggle Mic">
+                            <i id="mic-icon" class="bi bi-mic-fill"></i>
+                        </button>
+                        <button onclick="toggleVideo()" class="control-btn" title="Toggle Video">
+                            <i id="video-icon" class="bi bi-camera-video-fill"></i>
+                        </button>
+                        <button onclick="toggleScreenShare()" class="control-btn" title="Share Screen">
+                            <i class="bi bi-display"></i>
+                        </button>
+                        <div class="vr mx-2 text-white opacity-25"></div>
+                        <!-- Camera Selection -->
+                        <div class="d-flex align-items-center me-2">
+                            <select id="camera-select"
+                                class="form-select form-select-sm bg-dark text-white border-0 opacity-75 small"
+                                style="width: 140px; font-size: 0.75rem;" title="Select Camera">
+                                <option value="">Loading cameras...</option>
+                            </select>
+                        </div>
+                        <div class="vr mx-2 text-white opacity-25"></div>
+                        <a href="{% url 'consultations:end' consultation.room_id %}" class="control-btn btn-danger"
+                            title="End Consultation">
+                            <i class="bi bi-telephone-x-fill"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat & Info Sidebar -->
+        <div class="col-lg-3 h-100">
+            <div class="card border-0 shadow-sm h-100 rounded-4 overflow-hidden">
+                <div class="card-header bg-white border-bottom p-3 d-flex align-items-center">
+                    <i class="bi bi-chat-dots-fill text-primary me-2"></i>
+                    <h6 class="mb-0 fw-bold">Live Consultation</h6>
+                </div>
+
+                <div class="card-body p-0 d-flex flex-column h-100 overflow-hidden">
+                    <!-- Participant Info -->
+                    <div class="p-3 bg-light border-bottom">
+                        <div class="d-flex align-items-center mb-0">
+                            <div class="avatar-sm bg-primary bg-opacity-10 text-primary rounded-circle me-3 d-flex align-items-center justify-content-center"
+                                style="width: 40px; height: 40px;">
+                                <i class="bi bi-person-fill fs-5"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <h6 class="small fw-bold mb-0 text-truncate">
+                                    {% if is_doctor %}Patient: {{ appointment.patient.user.get_full_name }}{% else %}Dr.
+                                    {{ appointment.doctor.user.get_full_name }}{% endif %}
+                                </h6>
+                                <p class="extra-small text-muted mb-0">Live Session</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Message List -->
+                    <div id="chat-messages" class="flex-grow-1 p-3 overflow-y-auto"
+                        style="height: calc(100vh - 350px); min-height: 200px;">
+                        <div class="text-center my-3">
+                            <span
+                                class="badge bg-light text-muted fw-normal extra-small px-3 rounded-pill border">Secure
+                                Consultation Chat</span>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="p-3 bg-white border-top">
+                        <form onsubmit="sendMessage(event)" class="d-flex gap-2">
+                            <input type="text" id="chat-input"
+                                class="form-control form-control-sm border-0 bg-light rounded-pill px-3"
+                                placeholder="Type a message...">
+                            <button type="submit" class="btn btn-primary btn-sm rounded-circle p-1"
+                                style="width: 32px; height: 32px;">
+                                <i class="bi bi-send-fill"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Configuration Objects from Django Context -->
+<script>
+    const ROOM_ID = "{{ consultation.room_id }}";
+    const USER_ID = "{{ request.user.id }}";
+    const USER_NAME = "{{ request.user.get_full_name }}";
+    const IS_DOCTOR = "{{ is_doctor|yesno:'true,false' }}" === "true";
+    const WS_PROTOCOL = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+    const WS_URL = `${WS_PROTOCOL}${window.location.host}/ws/consultation/${ROOM_ID}/`;
+</script>
+<script src="{% static 'js/webrtc.js' %}"></script>
+{% endblock %}

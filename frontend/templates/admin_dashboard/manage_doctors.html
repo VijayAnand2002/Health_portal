@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Doctors - Admin Console{% endblock %}
+
+{% block content %}
+<div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">Doctor Management</h2>
+            <p class="text-muted small">Verify credentials and manage medical staff.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'admin_dashboard:manage_users' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to User Groups
+            </a>
+            <div class="search-bar" style="max-width: 250px;">
+                <input type="text" class="form-control form-control-sm" placeholder="Search doctors...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctors Card -->
+    <div class="card shadow-sm border-0 overflow-hidden mb-5">
+        <div class="card-header bg-white py-3 border-0">
+            <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-person-badge me-2"></i>Medical Professionals (Doctors)
+            </h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Doctor Details</th>
+                        <th>Specialization</th>
+                        <th>Joined Date</th>
+                        <th>Verification Status</th>
+                        <th>Account</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user_obj in doctors %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm bg-primary-subtle text-primary rounded-circle me-3 d-flex align-items-center justify-content-center"
+                                    style="width: 40px; height: 40px;">
+                                    {{ user_obj.first_name|first|default:user_obj.username|first|upper }}
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold small text-dark">{{ user_obj.get_full_name|default:user_obj.username }}</h6>
+                                    <span class="extra-small text-muted">{{ user_obj.email }}</span>
+                                </div>
+                            </div>
+                        </td>
+                            <td>
+                                <h6 class="mb-1 fw-bold large text-dark">{{ user_obj.doctor_profile.specialization|default:"Specialization Pending" }}</h6>
+                            {% if user_obj.doctor_profile.license_number %}
+                            <code
+                                class="extra-small text-dark">Lic: {{ user_obj.doctor_profile.license_number }}</code>
+                            {% endif %}
+                        </td>
+                        <td class="small text-muted">{{ user_obj.date_joined|date:"d M Y" }}</td>
+                        <td>
+                            {% if user_obj.is_approved %}
+                            <span class="badge bg-success-subtle text-success extra-small"><i
+                                    class="bi bi-patch-check-fill me-1"></i>Approved</span>
+                            {% else %}
+                            <span class="badge bg-warning-subtle text-warning extra-small"><i
+                                    class="bi bi-clock-history me-1"></i>Pending Review</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user_obj.is_active %}
+                            <span class="badge bg-primary-subtle text-primary extra-small">Active</span>
+                            {% else %}
+                            <span class="badge bg-danger-subtle text-danger extra-small">Suspended</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="dropdown d-inline-block">
+                                <button class="btn btn-sm btn-light border" type="button" data-bs-toggle="dropdown">
+                                    Manage <i class="bi bi-chevron-down small ms-1"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 small">
+                                    <li><a class="dropdown-item"
+                                            href="{% url 'admin_dashboard:review_doctor' user_obj.id %}"><i
+                                                class="bi bi-eye me-2"></i>Review Credentials</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item {% if user_obj.is_active %}text-danger{% else %}text-success{% endif %}"
+                                            href="{% url 'admin_dashboard:toggle_user_status' user_obj.id %}">
+                                            {% if user_obj.is_active %}
+                                            <i class="bi bi-slash-circle me-2"></i>Suspend Account
+                                            {% else %}
+                                            <i class="bi bi-check-circle me-2"></i>Activate Account
+                                            {% endif %}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-person-badge fs-1 d-block mb-3"></i>
+                            No doctors registered in the system yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

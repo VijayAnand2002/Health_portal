@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load doctor_tags %}
+
+{% block title %}Manage Availability - HealthCare Elite{% endblock %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-lg-10 mx-auto">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Weekly Schedule</h2>
+                <p class="text-muted small">Manage your consultation hours and availability for each day of the week.
+                </p>
+            </div>
+            <div class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill border border-primary-subtle">
+                <i class="bi bi-calendar-check me-2"></i>Online Scheduling Active
+            </div>
+        </div>
+
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 py-3">Day of Week</th>
+                            <th class="py-3 text-center">Status</th>
+                            <th class="py-3 text-center">Consultation Hours</th>
+                            <th class="pe-4 py-3 text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for day_name in days %}
+                        {% with slot=availability|get_item:forloop.counter0 %}
+                        <tr>
+                            <td class="ps-4 py-3">
+                                <div class="fw-bold fs-5 text-dark">{{ day_name }}</div>
+                            </td>
+                            <td class="py-3 text-center">
+                                {% if slot and slot.is_available %}
+                                <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Available
+                                </span>
+                                {% else %}
+                                <span
+                                    class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-pill opacity-75">
+                                    <i class="bi bi-dash-circle me-1"></i> Unavailable
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3 text-center">
+                                {% if slot and slot.is_available %}
+                                <div class="d-inline-flex align-items-center bg-light px-3 py-2 rounded-3 border">
+                                    <i class="bi bi-clock me-2 text-primary"></i>
+                                    <span class="fw-bold">{{ slot.start_time|time:"h:i A" }} - {{ slot.end_time|time:"h:i A" }}</span>
+                                </div>
+                                {% else %}
+                                <span class="text-muted italic small">No hours scheduled</span>
+                                {% endif %}
+                            </td>
+                            <td class="pe-4 py-3 text-end">
+                                <button class="btn btn-primary rounded-pill px-4 btn-sm shadow-sm"
+                                    onclick='editSlot("{{ forloop.counter0 }}", "{{ day_name }}", "{{ slot.is_available|yesno:"true,false" }}", "{{ slot.start_time|time:"H:i" }}", "{{ slot.end_time|time:"H:i" }}")'>
+                                    <i class="bi bi-pencil-square me-2"></i>Manage
+                                </button>
+                            </td>
+                        </tr>
+                        {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Slot Modal -->
+<div class="modal fade" id="editSlotModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header bg-primary text-white border-0 py-3">
+                <h5 class="modal-title fw-bold" id="modalDayTitle">Edit Availability</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="day" id="modalDay">
+                <div class="modal-body p-4">
+                    <div class="mb-4">
+                        <div class="form-check form-switch p-0 d-flex align-items-center justify-content-between">
+                            <div>
+                                <label class="fw-bold text-dark d-block">Available for Bookings</label>
+                                <span class="text-muted small">Allow patients to request appointments on this day</span>
+                            </div>
+                            <input class="form-check-input ms-0 mt-0" type="checkbox" name="is_available"
+                                id="modalAvailable" style="width: 3em; height: 1.5em;"
+                                onchange="toggleTimeInputs(this.checked)">
+                        </div>
+                    </div>
+
+                    <div id="timeRangeSection" class="bg-light p-3 rounded-4 border">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="small fw-bold text-muted mb-2 text-uppercase d-block">Start Time</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-white border-end-0"><i
+                                            class="bi bi-clock text-primary"></i></span>
+                                    <input type="time" name="start_time" class="form-control border-start-0"
+                                        id="modalStart">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label class="small fw-bold text-muted mb-2 text-uppercase d-block">End Time</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-white border-end-0"><i
+                                            class="bi bi-clock text-primary"></i></span>
+                                    <input type="time" name="end_time" class="form-control border-start-0"
+                                        id="modalEnd">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="copy_all" id="copyAll">
+                            <label class="form-check-label small fw-bold text-primary" for="copyAll">
+                                Apply these settings to ALL days of the week
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4"
+                        data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleTimeInputs(isAvailable) {
+        const section = document.getElementById('timeRangeSection');
+        if (isAvailable) {
+            section.classList.remove('opacity-50');
+            section.style.pointerEvents = 'auto';
+        } else {
+            section.classList.add('opacity-50');
+            section.style.pointerEvents = 'none';
+        }
+    }
+
+    function editSlot(dayIndex, dayName, available, start, end) {
+        document.getElementById('modalDay').value = dayIndex;
+        document.getElementById('modalDayTitle').innerText = 'Manage ' + dayName;
+
+        const isAvailable = (available === 'true');
+        document.getElementById('modalAvailable').checked = isAvailable;
+        document.getElementById('modalStart').value = start || '09:00';
+        document.getElementById('modalEnd').value = end || '17:00';
+        document.getElementById('copyAll').checked = false;
+
+        toggleTimeInputs(isAvailable);
+
+        new bootstrap.Modal(document.getElementById('editSlotModal')).show();
+    }
+</script>
+
+<style>
+    .form-check-input:checked {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(13, 110, 253, 0.02);
+    }
+
+    .badge {
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+
+    .italic {
+        font-style: italic;
+    }
+</style>
+{% endblock %}

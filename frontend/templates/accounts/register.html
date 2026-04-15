@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Register - HealthCare Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-8">
+        <div class="card p-4 p-md-5 shadow-lg border-0">
+            <div class="row">
+                <div class="col-lg-5 d-none d-lg-block border-end pe-4">
+                    <h3 class="fw-bold mb-4">Join Our Community</h3>
+                    <div class="mb-4">
+                        <div class="d-flex align-items-start mb-3">
+                            <i class="bi bi-check-circle-fill text-primary me-3 mt-1"></i>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Free Access</h6>
+                                <p class="small text-muted">Register as a patient for free and start consulting.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start mb-3">
+                            <i class="bi bi-check-circle-fill text-primary me-3 mt-1"></i>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Top Specialists</h6>
+                                <p class="small text-muted">Access hundreds of certified experts across fields.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-start mb-3">
+                            <i class="bi bi-check-circle-fill text-primary me-3 mt-1"></i>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Secure Data</h6>
+                                <p class="small text-muted">We prioritize your privacy above everything else.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <img src="https://img.freepik.com/free-vector/health-professional-team-illustration_23-2148491848.jpg?w=826&t=st=1738473500~exp=1738474100~hmac=80839e4f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f5f"
+                        class="img-fluid rounded mt-3" alt="Healthcare Team">
+                </div>
+                <div class="col-lg-7 ps-lg-4">
+                    <div class="mb-4">
+                        <h2 class="fw-bold">Account Registration</h2>
+                        <p class="text-muted small">Fill in the details to create your healthcare account</p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            {% for field in form %}
+                            <div
+                                class="col-md-{% if field.name == 'role' or field.name == 'phone' or field.name == 'username' or field.name == 'email' %}12{% else %}6{% endif %} mb-3">
+                                <label class="form-label fw-semibold small">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                <div class="text-danger extra-small mt-1">{{ field.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <style>
+                            .extra-small {
+                                font-size: 0.75rem;
+                            }
+
+                            input,
+                            select {
+                                border: 1px solid #dee2e6;
+                                padding: 0.6rem 1rem;
+                                border-radius: 8px;
+                                width: 100%;
+                            }
+
+                            ul#id_role {
+                                list-style: none;
+                                padding: 0;
+                                display: flex;
+                                gap: 20px;
+                            }
+                        </style>
+
+                        <div class="form-check mb-4 mt-3">
+                            <input class="form-check-input" type="checkbox" id="terms" required>
+                            <label class="form-check-label small text-muted" for="terms">
+                                I agree to the <a href="#" class="text-primary text-decoration-none">Terms of
+                                    Service</a> and <a href="#" class="text-primary text-decoration-none">Privacy
+                                    Policy</a>.
+                            </label>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary py-2 text-uppercase fw-bold">Create
+                                Account</button>
+                        </div>
+                    </form>
+                    <div class="mt-4 text-center">
+                        <p class="text-muted small">Already have an account? <a href="{% url 'accounts:login' %}"
+                                class="text-primary fw-bold text-decoration-none">Sign In</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

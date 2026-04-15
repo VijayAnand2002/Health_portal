@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% load doctor_tags %}
+
+{% block title %}Patient Dashboard - HealthCare Portal{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold">Welcome, {{ user.get_full_name|default:user.username }}!</h2>
+        <p class="text-muted">Stay updated with your health and consultations.</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{% url 'patients:profile' %}" class="btn btn-outline-primary rounded-pill shadow-sm">
+            <i class="bi bi-person-circle me-2"></i>My Profile
+        </a>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm p-4 h-100 bg-white" style="transition: transform 0.2s;">
+            <div class="d-flex align-items-center mb-3">
+                <div class="bg-primary-subtle text-primary p-3 rounded-circle me-3">
+                    <i class="bi bi-person-badge fs-2"></i>
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-1">Book Expert Doctors</h4>
+                    <p class="text-muted small mb-0">Directly connect with top-rated medical specialists</p>
+                </div>
+            </div>
+            <a href="{% url 'patients:search_doctors' %}" class="btn btn-primary fw-bold py-2 rounded-3 w-100">
+                <i class="bi bi-search me-2"></i>Find a Doctor
+            </a>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm p-4 h-100 bg-white" style="transition: transform 0.2s;">
+            <div class="d-flex align-items-center mb-3">
+                <div class="bg-info-subtle text-info p-3 rounded-circle me-3">
+                    <i class="bi bi-hospital fs-2"></i>
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-1">Book via Hospitals</h4>
+                    <p class="text-muted small mb-0">Browse facilities and book with their affiliated staff</p>
+                </div>
+            </div>
+            <a href="{% url 'patients:search_hospitals' %}"
+                class="btn btn-info text-white fw-bold py-2 rounded-3 w-100">
+                <i class="bi bi-building me-2"></i>Find a Hospital
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Upcoming Consultation Card -->
+{% if upcoming_consultation %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm overflow-hidden"
+            style="border-radius: 15px; background: linear-gradient(135deg, #0d6efd 0%, #00d2ff 100%); color: white;">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-white bg-opacity-25 p-2 rounded-3 me-3">
+                                <i class="bi bi-camera-video fs-3"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0">Upcoming Consultation</h5>
+                                <span class="badge bg-white text-primary rounded-pill small">
+                                    {% if upcoming_consultation.consultation and upcoming_consultation.consultation.status == 'ACTIVE' %}Live Now{% else %}Scheduled{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <h3 class="fw-bold mb-1">Dr. {{ upcoming_consultation.doctor.user.get_full_name }}</h3>
+                        <p class="mb-3 opacity-90">
+                            <i class="bi bi-calendar-event me-2"></i>{{ upcoming_consultation.appointment_date|date:"l, d F Y" }} at {{ upcoming_consultation.appointment_time|time:"H:i" }}
+                        </p>
+                        <div class="d-flex gap-3">
+                            <div class="small"><i class="bi bi-clock me-1"></i> {{ upcoming_consultation.duration }}
+                                mins</div>
+                            <div class="small"><i class="bi bi-tag me-1"></i> {{ upcoming_consultation.doctor.specialization }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-4 mt-md-0">
+                        {% if not upcoming_consultation.is_paid %}
+                        <a href="{% url 'payments:initiate_payment' upcoming_consultation.id %}"
+                            class="btn btn-light btn-lg rounded-pill fw-bold px-4 shadow-sm text-primary pulse-white">
+                            <i class="bi bi-credit-card-fill me-2"></i>Pay Now
+                        </a>
+                        {% elif upcoming_consultation.consultation %}
+                        <a href="{% url 'consultations:room' upcoming_consultation.consultation.room_id %}"
+                            class="btn btn-light btn-lg rounded-pill fw-bold px-4 shadow-sm text-success pulse-white">
+                            <i class="bi bi-camera-video-fill me-2"></i>Start Consultation
+                        </a>
+                        {% else %}
+                        <button
+                            class="btn btn-white bg-white bg-opacity-25 text-white border-0 btn-lg rounded-pill fw-bold px-4 cursor-default"
+                            disabled>
+                            <i class="bi bi-clock-history me-2"></i>Waiting for Doctor
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .pulse-white {
+        animation: pulse-white 2s infinite;
+    }
+
+    @keyframes pulse-white {
+        0% {
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+        }
+
+        70% {
+            box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+        }
+    }
+</style>
+{% endif %}
+
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card p-4 border-0 bg-primary-subtle text-primary">
+            <h6 class="text-uppercase fw-bold small mb-3">Total Appointments</h6>
+            <h2 class="mb-0 fw-bold">{{ total_appointments }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-4 border-0 bg-success-subtle text-success">
+            <h6 class="text-uppercase fw-bold small mb-3">Health Status</h6>
+            <div class="d-flex align-items-center">
+                <h2 class="mb-0 fw-bold me-2">Active</h2>
+                <span class="badge bg-success rounded-pill fw-normal">Checked Today</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-4 border-0 bg-warning-subtle text-warning">
+            <h6 class="text-uppercase fw-bold small mb-3">Upcoming Calls</h6>
+            <h2 class="mb-0">{% if upcoming_consultation %}1{% else %}0{% endif %}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card p-4 shadow-sm border-0">
+            <h5 class="fw-bold mb-4">Recent Appointments</h5>
+            {% if recent_appointments %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>Doctor</th>
+                            <th>Date & Time</th>
+                            <th>Status</th>
+                            <th>Prescription</th>
+                            <th>Action</th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in recent_appointments %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-light rounded-circle me-3 p-2 text-center"
+                                        style="width: 40px; height: 40px;">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-bold">{{ record.doctor.user.get_full_name }}</h6>
+                                        <span class="small text-muted">{{ record.doctor.specialization }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="small fw-semibold">{{ record.appointment_date|date:"D, d M Y" }}</div>
+                                <div class="extra-small text-muted">
+                                    {% if record.appointment_time %}
+                                    {{ record.appointment_time|time:"H:i" }}
+                                    {% else %}
+                                    <span class="text-primary italic">Time TBD</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <span
+                                    class="badge rounded-pill {% if record.status == 'CONFIRMED' %}bg-success{% elif record.status == 'PENDING' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                    {{ record.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group gap-2">
+                                    {% if record.status == 'CONFIRMED' and not record.is_paid %}
+                                    <a href="{% url 'payments:initiate_payment' record.id %}"
+                                        class="btn btn-warning btn-sm rounded-pill shadow-sm px-3 text-dark fw-bold">
+                                        <i class="bi bi-credit-card-fill me-1"></i>Pay Now
+                                    </a>
+                                    {% else %}
+                                        {% with room_id=active_rooms|get_item:record.id %}
+                                        {% if room_id %}
+                                        <a href="{% url 'consultations:room' room_id %}"
+                                            class="btn btn-success btn-sm rounded-pill shadow-sm px-3 pulse-green">
+                                            <i class="bi bi-camera-video-fill me-1"></i>Join Now
+                                        </a>
+                                        {% endif %}
+                                        {% endwith %}
+                                    {% endif %}
+                                </div>
+                                <div class="btn-group gap-2">
+                                    {% for prescription in record.prescriptions.all %}
+                                    <a href="{% url 'prescriptions:download_pdf' prescription.id %}"
+                                        class="btn btn-primary btn-sm rounded-pill shadow-sm"
+                                        title="Download Prescription">
+                                        <i class="bi bi-file-earmark-pdf-fill me-1"></i>PDF
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                                </td>
+                               <td>
+                                <div class="btn-group gap-2">
+                                    <a href="{% url 'appointments:appointment_detail' record.id %}"
+                                        class="btn btn-outline-primary btn-sm rounded-pill">View Detail</a>
+                                </div>
+                               </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-calendar-x fs-1 text-muted mb-3 d-block"></i>
+                <p class="text-muted">No appointments found. Start by booking one!</p>
+                <a href="{% url 'patients:search_hospitals' %}" class="btn btn-link text-decoration-none fw-bold">Find a
+                    Hospital</a>
+            </div>
+            {% endif %}
+        </div>
+        <style>
+            .pulse-green {
+                animation: pulse-green 2s infinite;
+            }
+
+            @keyframes pulse-green {
+                0% {
+                    box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7);
+                }
+
+                70% {
+                    box-shadow: 0 0 0 10px rgba(25, 135, 84, 0);
+                }
+
+                100% {
+                    box-shadow: 0 0 0 0 rgba(25, 135, 84, 0);
+                }
+            }
+        </style>
+    </div>
+    <div class="col-lg-4">
+        <div class="card p-4 shadow-sm border-0 mb-4">
+            <h5 class="fw-bold mb-4">Quick Health Tips</h5>
+            <div class="d-flex mb-3">
+                <i class="bi bi-droplet-fill text-primary me-3 fs-3"></i>
+                <p class="small mb-0">Stay hydrated! Drink at least 8 glasses of water every day.</p>
+            </div>
+            <div class="d-flex mb-3">
+                <i class="bi bi-activity text-success me-3 fs-3"></i>
+                <p class="small mb-0">A 30-minute walk can significantly improve your heart health.</p>
+            </div>
+            <div class="d-flex">
+                <i class="bi bi-moon-stars-fill text-dark me-3 fs-3"></i>
+                <p class="small mb-0">Ensure you get 7-8 hours of sleep for mental clarity.</p>
+            </div>
+        </div>
+        <div class="card p-4 shadow-sm border-0 bg-dark text-white">
+            <h5 class="fw-bold mb-3">Emergency?</h5>
+            <p class="small opacity-75">Connect with the nearest hospital immediately.</p>
+            <a href="#" class="btn btn-danger btn-sm fw-bold w-100">CALL EMERGENCY</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

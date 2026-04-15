@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Hospitals - System Admin{% endblock %}
+
+{% block content %}
+<div class="mb-5">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Hospital Management</h2>
+            <p class="text-muted">Review and verify medical facilities on the platform.</p>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Hospital Name</th>
+                        <th>Location</th>
+                        <th>Registration No.</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hospital in hospitals %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary-subtle text-primary p-2 rounded me-3">
+                                    <i class="bi bi-building"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ hospital.name }}</div>
+                                    <div class="text-muted extra-small">Added on {{ hospital.created_at|date:"d M Y" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ hospital.city }}, {{ hospital.state }}</td>
+                        <td><code class="text-primary">{{ hospital.registration_number }}</code></td>
+                        <td>
+                            {% if hospital.is_verified %}
+                            <span class="badge bg-success-subtle text-success">Verified</span>
+                            {% else %}
+                            <span class="badge bg-warning-subtle text-warning">Pending Approval</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="btn-group">
+                                <button
+                                    class="btn btn-sm btn-outline-primary fw-bold px-3 rounded-pill me-2">View</button>
+                                {% if not hospital.is_verified %}
+                                <a href="{% url 'admin_dashboard:verify_hospital' hospital.id %}"
+                                    class="btn btn-sm btn-success fw-bold px-3 rounded-pill">Approve</a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">No hospitals matching the criteria.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .extra-small {
+        font-size: 0.75rem;
+    }
+</style>
+{% endblock %}

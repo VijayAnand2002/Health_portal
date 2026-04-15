@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome - Digital Health Consultation Portal{% endblock %}
+
+{% block content %}
+<div class="row align-items-center py-5">
+    <div class="col-lg-6">
+      <!--  <span class="badge bg-primary-subtle text-primary mb-3 px-3 py-2 rounded-pill">Health is Wealth</span> -->
+        <h1 class="display-4 mb-4" style="font-weight: 800;">Digital Health Consultation Portal </h1> 
+        <p class="lead text-muted mb-5">Connect with certified doctors instantly via video/audio calls. Manage your
+            health records, book appointments, and get prescriptions securely.</p>
+        <div class="d-flex gap-3">
+            <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg px-4">Get Started</a>
+            <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-lg px-4">Consult a Doctor</a>
+        </div>
+        <div class="mt-5 d-flex align-items-center gap-4">
+            <div class="d-flex align-items-center">
+                <h3 class="mb-0 me-2" style="font-weight: 700;">10k+</h3>
+                <span class="text-muted small">Satisfied <br>Patients</span>
+            </div>
+            <div class="vr"></div>
+            <div class="d-flex align-items-center">
+                <h3 class="mb-0 me-2" style="font-weight: 700;">500+</h3>
+                <span class="text-muted small">Expert <br>Doctors</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 mt-5 mt-lg-0">
+        <div class="position-relative">
+            <img src="https://img.freepik.com/free-photo/handsome-young-male-doctor-with-stethoscope-standing-against-blue-background_23-2148213964.jpg?t=st=1738473062~exp=1738476662~hmac=627f10b7f6c7700e1f40951a707106b12a647d79b9b4f977c01a91e0a2977770&w=1380"
+                alt="Doctor" class="img-fluid rounded-4 shadow-lg">
+            <div class="position-absolute bottom-0 start-0 bg-white p-4 rounded-4 shadow-lg mb-n4 ms-n4 d-none d-md-block"
+                style="width: 250px;">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-success rounded-circle me-3" style="width: 12px; height: 12px;"></div>
+                    <span class="fw-bold">Online Consultations</span>
+                </div>
+                <div class="avatar-group d-flex">
+                    <img src="https://i.pravatar.cc/150?u=1" class="rounded-circle border border-2 border-white"
+                        style="width: 40px;" alt="">
+                    <img src="https://i.pravatar.cc/150?u=2" class="rounded-circle border border-2 border-white ms-n2"
+                        style="width: 40px;" alt="">
+                    <img src="https://i.pravatar.cc/150?u=3" class="rounded-circle border border-2 border-white ms-n2"
+                        style="width: 40px;" alt="">
+                </div>
+                <p class="small text-muted mt-2 mb-0">Join 300+ people in queue today</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5 pt-5 g-4 text-center">
+    <h2 class="mb-5">Our Core Services</h2>
+    <div class="col-md-4">
+        <div class="card h-100 p-4 border-0 shadow-sm">
+            <div class="bg-primary-subtle text-primary rounded-4 d-inline-block p-3 mx-auto mb-4">
+                <i class="bi bi-camera-video-fill fs-3"></i>
+            </div>
+            <h4>Video Consultation</h4>
+            <p class="text-muted">High-quality video calls with doctors using WebRTC technology for seamless
+                interaction.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 p-4 border-0 shadow-sm">
+            <div class="bg-success-subtle text-success rounded-4 d-inline-block p-3 mx-auto mb-4">
+                <i class="bi bi-file-earmark-medical-fill fs-3"></i>
+            </div>
+            <h4>Digital Prescriptions</h4>
+            <p class="text-muted">Instant digital prescriptions accessible anytime, anywhere from your patient
+                dashboard.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 p-4 border-0 shadow-sm">
+            <div class="bg-warning-subtle text-warning rounded-4 d-inline-block p-3 mx-auto mb-4">
+                <i class="bi bi-shield-lock-fill fs-3"></i>
+            </div>
+            <h4>Secure Records</h4>
+            <p class="text-muted">Your medical data is encrypted and stored securely following the highest privacy
+                standards.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctors at {{ hospital.name }} - HealthCare Portal{% endblock %}
+
+{% block content %}
+<div class="mb-5">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'patients:search_hospitals' %}"
+                    class="text-decoration-none">Hospitals</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ hospital.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row align-items-end mb-5">
+        <div class="col-md-9">
+            <h2 class="fw-bold mb-2">Available Doctors</h2>
+            <p class="text-muted mb-0">Consult with experts at {{ hospital.name }}. Choose a specialist that fits your
+                needs.</p>
+        </div>
+        <div class="col-md-3 text-md-end mt-3 mt-md-0">
+            <div class="text-muted small mb-1">Location: {{ hospital.city }}</div>
+            <div class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">Open
+                for Bookings</div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for doctor in doctors %}
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 p-4 h-100">
+                <div class="row align-items-center">
+                    <div class="col-sm-3 text-center mb-3 mb-sm-0">
+                        {% if doctor.user.profile_picture %}
+                        <img src="{{ doctor.user.profile_picture.url }}" class="rounded-circle"
+                            style="width: 100px; height: 100px; object-fit: cover;" alt="">
+                        {% else %}
+                        <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto"
+                            style="width: 100px; height: 100px;">
+                            <i class="bi bi-person-fill fs-1"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-sm-6 border-end-sm">
+                        <h5 class="fw-bold mb-1">Dr. {{ doctor.user.get_full_name }}</h5>
+                        <div class="text-primary small fw-bold mb-2">{{ doctor.specialization }}</div>
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="bg-warning-subtle text-dark extra-small px-2 py-1 rounded">
+                                <i class="bi bi-star-fill text-warning me-1"></i> {{ doctor.rating }}
+                            </span>
+                            <span class="text-muted extra-small">{{ doctor.experience_years }} Years Experience</span>
+                        </div>
+                        <p class="small text-muted mb-0 line-clamp-2">{{ doctor.bio|default:"Specialized in providing comprehensive healthcare and personalized consultation sessions." }}</p>
+                    </div>
+                    <div class="col-sm-3 text-center ps-sm-4 mt-4 mt-sm-0">
+                        <div class="text-muted small mb-1">Consultation Fee</div>
+                        <h4 class="fw-bold text-dark mb-3">₹{{ doctor.consultation_fee }}</h4>
+                        <a href="{% url 'appointments:book_appointment' doctor.id %}"
+                            class="btn btn-primary btn-sm w-100 fw-bold py-2">Book Slot</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-people fs-1 text-muted mb-3 d-block"></i>
+            <h4 class="fw-bold">No doctors currently available</h4>
+            <p class="text-muted">Please check back later or explore other hospitals.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    @media (min-width: 576px) {
+        .border-end-sm {
+            border-right: 1px solid #dee1e6;
+        }
+    }
+
+    .extra-small {
+        font-size: 0.75rem;
+    }
+</style>
+{% endblock %}

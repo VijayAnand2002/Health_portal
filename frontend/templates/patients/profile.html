@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - HealthCare Portal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 mb-4 overflow-hidden">
+            <div class="bg-primary py-5 text-center">
+                <div class="avatar-lg bg-white rounded-circle d-inline-flex align-items-center justify-content-center border border-4 border-white shadow-sm"
+                    style="width: 100px; height: 100px;">
+                    <i class="bi bi-person-fill text-primary fs-1"></i>
+                </div>
+                <h4 class="text-white mt-3 mb-0">{{ user.get_full_name|default:user.username }}</h4>
+                <p class="text-white-50 small mb-0">{{ user.get_role_display }}</p>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush small">
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span class="text-muted"><i class="bi bi-envelope me-2"></i>Email</span>
+                        <span class="fw-bold">{{ user.email }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span class="text-muted"><i class="bi bi-telephone me-2"></i>Phone</span>
+                        <span class="fw-bold">{{ user.phone|default:"Not provided" }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span class="text-muted"><i class="bi bi-calendar-event me-2"></i>DOB</span>
+                        <span class="fw-bold">{{ user.date_of_birth|default:"Not provided" }}</span>
+                    </li>
+                </ul>
+                <div class="mt-4 d-grid">
+                    <a href="{% url 'patients:edit_personal_details' %}"
+                        class="btn btn-outline-primary btn-sm rounded-pill">Edit Personal Details</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <h6 class="fw-bold mb-3"><i class="bi bi-shield-plus text-danger me-2"></i>Emergency Contact</h6>
+                {% if profile.emergency_contact_name %}
+                <div class="mb-2">
+                    <div class="extra-small text-muted">Name</div>
+                    <div class="small fw-bold">{{ profile.emergency_contact_name }}</div>
+                </div>
+                <div class="mb-2">
+                    <div class="extra-small text-muted">Relation</div>
+                    <div class="small fw-bold">{{ profile.emergency_contact_relation }}</div>
+                </div>
+                <div>
+                    <div class="extra-small text-muted">Phone</div>
+                    <div class="small fw-bold">{{ profile.emergency_contact_phone }}</div>
+                </div>
+                {% else %}
+                <p class="small text-muted mb-0">No emergency contact info provided.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 mb-4 p-4">
+            <h5 class="fw-bold mb-4">Medical Profile</h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded-3 text-center">
+                        <div class="extra-small text-muted mb-1">Blood Group</div>
+                        <h4 class="fw-bold text-primary mb-0">{{ profile.blood_group|default:"--" }}</h4>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded-3 text-center">
+                        <div class="extra-small text-muted mb-1">Height</div>
+                        <h4 class="fw-bold text-success mb-0">{{ profile.height|default:"--" }} <small
+                                class="extra-small">cm</small></h4>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-light rounded-3 text-center">
+                        <div class="extra-small text-muted mb-1">Weight</div>
+                        <h4 class="fw-bold text-info mb-0">{{ profile.weight|default:"--" }} <small
+                                class="extra-small">kg</small></h4>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4 opacity-10">
+
+            <div class="mb-4">
+                <h6 class="fw-bold mb-2"><i class="bi bi-virus text-warning me-2"></i>Allergies</h6>
+                <div class="p-3 border rounded-3 bg-white">
+                    <p class="small mb-0">{{ profile.allergies|default:"No known allergies recorded." }}</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h6 class="fw-bold mb-2"><i class="bi bi-activity text-primary me-2"></i>Chronic Conditions</h6>
+                <div class="p-3 border rounded-3 bg-white">
+                    <p class="small mb-0">{{ profile.chronic_conditions|default:"No chronic conditions recorded." }}</p>
+                </div>
+            </div>
+
+            <div class="mb-0">
+                <h6 class="fw-bold mb-2"><i class="bi bi-capsule text-success me-2"></i>Current Medications</h6>
+                <div class="p-3 border rounded-3 bg-white">
+                    <p class="small mb-0">{{ profile.current_medications|default:"No current medications recorded." }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex justify-content-end">
+                <a href="{% url 'patients:update_medical_history' %}" class="btn btn-primary rounded-pill">Update
+                    Medical History</a>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 p-4">
+            <h5 class="fw-bold mb-3">Address Information</h5>
+            <div class="d-flex align-items-start">
+                <i class="bi bi-geo-alt fs-4 text-primary me-3"></i>
+                <div>
+                    <p class="mb-0">{{ user.address|default:"Address details not updated yet." }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+
+{% block title %}System Admin Dashboard - HealthCare Portal{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold">System Administration</h2>
+        <p class="text-muted">High-level overview of platform performance and user activity.</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{% url 'admin_dashboard:manage_users' %}" class="btn btn-outline-primary fw-bold">
+            <i class="bi bi-people me-2"></i>Manage All Users
+        </a>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="card p-4 border-0 shadow-sm bg-white">
+            <div class="d-flex align-items-center mb-3">
+                <div class="bg-primary-subtle text-primary p-2 rounded-3 me-3">
+                    <i class="bi bi-person-circle fs-4"></i>
+                </div>
+                <h6 class="text-uppercase fw-bold small text-muted mb-0">Total Users</h6>
+            </div>
+            <h2 class="fw-bold mb-0 text-dark">{{ total_users }}</h2>
+            <div class="extra-small text-success mt-2"><i class="bi bi-arrow-up"></i> 12% increase</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-4 border-0 shadow-sm bg-white">
+            <div class="d-flex align-items-center mb-3">
+                <div class="bg-success-subtle text-success p-2 rounded-3 me-3">
+                    <i class="bi bi-currency-dollar fs-4"></i>
+                </div>
+                <h6 class="text-uppercase fw-bold small text-muted mb-0">Total Revenue</h6>
+            </div>
+            <h2 class="fw-bold mb-0 text-dark">₹{{ total_revenue }}</h2>
+            <div class="extra-small text-success mt-2"><i class="bi bi-arrow-up"></i> 8% this month</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <a href="{% url 'admin_dashboard:manage_hospitals' %}" class="text-decoration-none">
+            <div class="card p-4 border-0 shadow-sm bg-white h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-warning-subtle text-warning p-2 rounded-3 me-3">
+                        <i class="bi bi-building fs-4"></i>
+                    </div>
+                    <h6 class="text-uppercase fw-bold small text-muted mb-0">Hospital Management</h6>
+                </div>
+                <h2 class="fw-bold mb-0 text-dark">{{ pending_hospitals }}</h2>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="{% url 'admin_dashboard:manage_users' %}" class="text-decoration-none">
+            <div class="card p-4 border-0 shadow-sm bg-white h-100">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-danger-subtle text-danger p-2 rounded-3 me-3">
+                        <i class="bi bi-person-badge fs-4"></i>
+                    </div>
+                    <h6 class="text-uppercase fw-bold small text-muted mb-0">User Management</h6>
+                </div>
+                <h2 class="fw-bold mb-0 text-dark">{{ User_Management }}</h2>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-7">
+        <div class="card p-4 shadow-sm border-0 mb-4 h-100">
+            <h5 class="fw-bold mb-4">Recent Platform Activity</h5>
+            <div class="list-group list-group-flush">
+                {% for apt in recent_appointments %}
+                <div class="list-group-item px-0 py-3 border-light">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-light p-2 rounded-circle me-3">
+                            <i class="bi bi-calendar-event text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-0 fw-bold small">New Appointment Scheduled</h6>
+                            <p class="extra-small text-muted mb-0">Between {{ apt.patient.user.get_full_name }} and Dr.
+                                {{ apt.doctor.user.last_name }}</p>
+                        </div>
+                        <span class="extra-small text-muted">{{ apt.created_at|timesince }} ago</span>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center text-muted py-5">No recent activity found.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card p-4 shadow-sm border-0 h-100">
+            <h5 class="fw-bold mb-4">Recent Transactions</h5>
+            <div class="table-responsive">
+                <table class="table table-sm table-borderless">
+                    <thead>
+                        <tr class="extra-small text-muted text-uppercase">
+                            <th>Transaction ID</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pay in recent_payments %}
+                        <tr>
+                            <td><code class="extra-small">{{ pay.transaction_id|truncatechars:15 }}</code></td>
+                            <td class="small fw-bold">₹{{ pay.amount }}</td>
+                            <td><span class="badge bg-success-subtle text-success extra-small">COMPLETED</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-4 small">No payments recorded.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <a href="#" class="btn btn-light btn-sm w-100 mt-auto fw-bold">View Financial Reports</a>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-lg-6">
+        <div class="card p-4 shadow-sm border-0 mb-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0 text-primary">Recent Doctors</h5>
+                <a href="{% url 'admin_dashboard:manage_doctors' %}" class="btn btn-sm btn-light border small">View
+                    All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle">
+                    <thead class="text-muted extra-small text-uppercase">
+                        <tr>
+                            <th>Doctor</th>
+                            <th>Specialization</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doc in recent_doctors %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-xs bg-primary-subtle text-primary rounded-circle me-2 d-flex align-items-center justify-content-center"
+                                        style="width: 24px; height: 24px; font-size: 0.7rem;">
+                                        {{ doc.last_name|first|default:doc.username|first|upper }}
+                                    </div>
+                                    <span class="small fw-medium">{{ doc.get_full_name|default:doc.username }}</span>
+                                </div>
+                            </td>
+                            <td class="small">{{ doc.doctor_profile.specialization|default:"---" }}</td>
+                            <td>
+                                {% if doc.is_approved %}
+                                <span class="badge bg-success-subtle text-success extra-small">Approved</span>
+                                {% else %}
+                                <span class="badge bg-warning-subtle text-warning extra-small">Pending</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-3 small">No doctors found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card p-4 shadow-sm border-0 mb-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0 text-success">Recent Patients</h5>
+                <a href="{% url 'admin_dashboard:manage_patients' %}" class="btn btn-sm btn-light border small">View
+                    All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle">
+                    <thead class="text-muted extra-small text-uppercase">
+                        <tr>
+                            <th>Patient</th>
+                            <th>Joined</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pat in recent_patients %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-xs bg-success-subtle text-success rounded-circle me-2 d-flex align-items-center justify-content-center"
+                                        style="width: 24px; height: 24px; font-size: 0.7rem;">
+                                        {{ pat.first_name|first|default:pat.username|first|upper }}
+                                    </div>
+                                    <span class="small fw-medium">{{ pat.get_full_name|default:pat.username }}</span>
+                                </div>
+                            </td>
+                            <td class="small">{{ pat.date_joined|date:"d M" }}</td>
+                            <td>
+                                {% if pat.is_active %}
+                                <span class="badge bg-primary-subtle text-primary extra-small">Active</span>
+                                {% else %}
+                                <span class="badge bg-danger-subtle text-danger extra-small">Suspended</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-3 small">No patients found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

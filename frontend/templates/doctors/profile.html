@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - HealthCare Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold mb-0">Doctor Profile</h2>
+            <a href="{% url 'doctors:dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="row g-4">
+                <!-- Personal Information -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="mb-4">
+                                {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" alt="Profile" class="rounded-circle img-thumbnail shadow-sm" style="width: 150px; height: 150px; object-fit: cover;">
+                                {% else %}
+                                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 150px; height: 150px;">
+                                    <i class="bi bi-person-fill" style="font-size: 5rem;"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <h5 class="fw-bold mb-1">{{ user.get_full_name }}</h5>
+                            <p class="text-muted small mb-3">{{ doctor.specialization }}</p>
+                            
+                            <div class="mb-3 text-start">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Profile Picture</label>
+                                {{ user_form.profile_picture }}
+                                {% if user_form.profile_picture.errors %}
+                                <div class="text-danger small mt-1">{{ user_form.profile_picture.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="badge bg-success-subtle text-success px-3 py-2 rounded-pill border border-success-subtle w-100">
+                                <i class="bi bi-patch-check-fill me-2"></i>{% if doctor.is_verified %}Verified Provider{% else %}Awaiting Verification{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <!-- Basic Details Card -->
+                    <div class="card shadow-sm border-0 mb-4">
+                        <div class="card-header bg-white py-3 border-bottom-0">
+                            <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-person-badge me-2"></i>Personal Information</h5>
+                        </div>
+                        <div class="card-body p-4 pt-0">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">First Name</label>
+                                    {{ user_form.first_name }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Last Name</label>
+                                    {{ user_form.last_name }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Email Address</label>
+                                    {{ user_form.email }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Phone Number</label>
+                                    {{ user_form.phone }}
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold small">Address</label>
+                                    {{ user_form.address }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Professional Details Card -->
+                    <div class="card shadow-sm border-0 mb-4">
+                        <div class="card-header bg-white py-3 border-bottom-0">
+                            <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-briefcase me-2"></i>Professional Details</h5>
+                        </div>
+                        <div class="card-body p-4 pt-0">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Specialization</label>
+                                    {{ profile_form.specialization }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">License Number</label>
+                                    {{ profile_form.license_number }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Experience (Years)</label>
+                                    {{ profile_form.experience_years }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Consultation Fee (₹)</label>
+                                    {{ profile_form.consultation_fee }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Consultation Duration (Minutes)</label>
+                                    {{ profile_form.consultation_duration }}
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold small">Qualifications</label>
+                                    {{ profile_form.qualifications }}
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-semibold small">Professional Bio</label>
+                                    {{ profile_form.bio }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill shadow-sm">
+                            <i class="bi bi-save me-2"></i>Save All Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

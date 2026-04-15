@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Find Expert Doctors - HealthCare Portal{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row align-items-center mb-5">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb" class="mb-2">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'patients:dashboard' %}" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Find Doctors</li>
+                </ol>
+            </nav>
+            <h2 class="fw-bold mb-0">Book Our Expert Doctors</h2>
+            <p class="text-muted">Find and schedule a consultation with the right specialist for you.</p>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm p-4 mb-5 bg-white rounded-4">
+        <form method="get" class="row g-3">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" class="form-control border-start-0 py-2" placeholder="Search by name or username..." value="{{ query }}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-briefcase"></i></span>
+                    <select name="specialization" class="form-select border-start-0 py-2">
+                        <option value="">All Specializations</option>
+                        {% for spec in specializations %}
+                        <option value="{{ spec.name }}" {% if spec.selected %}selected{% endif %}>{{ spec.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-3">Apply Filters</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="row g-4">
+        {% for doctor in doctors %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100 rounded-4 overflow-hidden doctor-card">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="avatar-md bg-primary-subtle text-primary rounded-3 me-3 d-flex align-items-center justify-content-center" style="width:60px;height:60px;">
+                            <i class="bi bi-person-badge-fill fs-2"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-1">Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h5>
+                            <span class="badge bg-light text-primary border border-primary-subtle small">{{ doctor.specialization }}</span>
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <div class="small text-muted mb-1 text-uppercase extra-small">Experience</div>
+                            <div class="fw-bold">{{ doctor.experience_years }} Years</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="small text-muted mb-1 text-uppercase extra-small">Rating</div>
+                            <div class="fw-bold text-warning"><i class="bi bi-star-fill me-1"></i> {{ doctor.rating }}</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="small text-muted mb-1 text-uppercase extra-small">Fee</div>
+                            <div class="fw-bold text-success">&#8377;{{ doctor.consultation_fee }}</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="small text-muted mb-1 text-uppercase extra-small">Status</div>
+                            <span class="badge {% if doctor.is_available %}bg-success-subtle text-success{% else %}bg-danger-subtle text-danger{% endif %} extra-small">{% if doctor.is_available %}Available{% else %}Offline{% endif %}</span>
+                        </div>
+                    </div>
+                    <div class="border-top pt-3 mt-auto">
+                        <a href="{% url 'appointments:book_appointment' doctor.id %}" class="btn btn-outline-primary w-100 fw-bold rounded-pill">Book Appointment</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="display-1 text-muted opacity-25 mb-4"><i class="bi bi-person-x"></i></div>
+            <h4 class="fw-bold text-muted">No Doctors Found</h4>
+            <p class="text-muted">Try adjusting your search or filters.</p>
+            <a href="{% url 'patients:search_doctors' %}" class="btn btn-primary px-4 mt-2">Clear All Filters</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<style>
+.doctor-card{transition:all .3s ease}
+.doctor-card:hover{transform:translateY(-5px);box-shadow:0 10px 20px rgba(0,0,0,.1)!important}
+.avatar-md{transition:all .3s ease}
+.doctor-card:hover .avatar-md{transform:scale(1.1)}
+</style>
+{% endblock %}

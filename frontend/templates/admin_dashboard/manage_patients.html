@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Patients - Admin Console{% endblock %}
+
+{% block content %}
+<div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">Patient Management</h2>
+            <p class="text-muted small">Overview of all registered patients on the platform.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'admin_dashboard:manage_users' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to User Groups
+            </a>
+            <div class="search-bar" style="max-width: 250px;">
+                <input type="text" class="form-control form-control-sm" placeholder="Search patients...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Patients Card -->
+    <div class="card shadow-sm border-0 overflow-hidden">
+        <div class="card-header bg-white py-3 border-0">
+            <h5 class="fw-bold mb-0 text-success"><i class="bi bi-people me-2"></i>Registered Patients</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Patient Details</th>
+                        <th>Contact Number</th>
+                        <th>Address</th>
+                        <th>Joined Date</th>
+                        <th>Account Status</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user_obj in patients %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm bg-success-subtle text-success rounded-circle me-3 d-flex align-items-center justify-content-center"
+                                    style="width: 40px; height: 40px;">
+                                    {{ user_obj.first_name|first|default:user_obj.username|first|upper }}
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold small text-dark">{{ user_obj.get_full_name|default:user_obj.username }}</h6>
+                                    <span class="extra-small text-muted">{{ user_obj.email }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="small">{{ user_obj.phone|default:"Not provided" }}</td>
+                        <td class="small text-muted">{{ user_obj.address|default:"Not provided"|truncatechars:30 }}</td>
+                        <td class="small">{{ user_obj.date_joined|date:"d M Y" }}</td>
+                        <td>
+                            {% if user_obj.is_active %}
+                            <span class="badge bg-success-subtle text-success extra-small">Active</span>
+                            {% else %}
+                            <span class="badge bg-danger-subtle text-danger extra-small">Suspended</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="dropdown d-inline-block">
+                                <button class="btn btn-sm btn-light border" type="button" data-bs-toggle="dropdown">
+                                    Manage <i class="bi bi-chevron-down small ms-1"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 small">
+                                    <li><a class="dropdown-item" href="#"><i
+                                                class="bi bi-card-list me-2"></i>Consultation History</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>View
+                                            Profile</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item {% if user_obj.is_active %}text-danger{% else %}text-success{% endif %}"
+                                            href="{% url 'admin_dashboard:toggle_user_status' user_obj.id %}">
+                                            {% if user_obj.is_active %}
+                                            <i class="bi bi-slash-circle me-2"></i>Suspend Account
+                                            {% else %}
+                                            <i class="bi bi-check-circle me-2"></i>Activate Account
+                                            {% endif %}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-people fs-1 d-block mb-3"></i>
+                            No patients registered in the system yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

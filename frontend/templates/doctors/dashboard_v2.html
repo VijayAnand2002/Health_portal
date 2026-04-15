@@ -1,0 +1,329 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctor Dashboard - HealthCare Portal{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const approveModal = document.getElementById('approveModalDash');
+        if (approveModal) {
+            approveModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const appointmentId = button.getAttribute('data-appointment-id');
+                const patientName = button.getAttribute('data-patient-name');
+                const appointmentDate = button.getAttribute('data-appointment-date');
+
+                // Update modal content
+                const patientSpan = this.querySelector('.patient-name-span');
+                const dateSpan = this.querySelector('.appointment-date-span');
+                if (patientSpan) patientSpan.textContent = patientName;
+                if (dateSpan) dateSpan.textContent = appointmentDate;
+
+                // Update form action
+                const form = this.querySelector('form');
+                form.action = `/doctors/appointments/${appointmentId}/approve/`;
+
+                const slotSelect = this.querySelector('.slot-selector');
+                if (!slotSelect) return;
+
+                // Clear and show loading
+                slotSelect.innerHTML = '<option value="">Loading available slots...</option>';
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+
+                fetch(`/doctors/appointments/${appointmentId}/slots/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        slotSelect.innerHTML = '';
+                        if (data.slots && data.slots.length > 0) {
+                            data.slots.forEach(slot => {
+                                const option = document.createElement('option');
+                                option.value = slot.time;
+                                option.textContent = slot.display;
+                                slotSelect.appendChild(option);
+                            });
+                            submitBtn.disabled = false;
+                        } else {
+                            const option = document.createElement('option');
+                            option.value = '';
+                            option.textContent = 'No slots available for this day';
+                            slotSelect.appendChild(option);
+                            submitBtn.disabled = true;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching slots:', error);
+                        slotSelect.innerHTML = '<option value="">Error loading slots</option>';
+                    });
+            });
+        }
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2 class="fw-bold">Doctor's Console (V2)</h2>
+        <p class="text-muted">Welcome back, Dr. {{ user.last_name }}. Here's your schedule for today.</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <a href="{% url 'doctors:doctor_profile' %}" class="btn btn-outline-primary btn-sm rounded-pill fw-bold shadow-sm me-2">
+            <i class="bi bi-person-fill me-1"></i>View Profile
+        </a>
+        <div class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill shadow-sm">
+            <span class="spinner-grow spinner-grow-sm me-2" role="status" aria-hidden="true"
+                style="width: 0.6rem; height: 0.6rem;"></span>
+            Online & Available
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="card p-4 border-0 shadow-sm border-start border-primary border-4">
+            <h6 class="text-uppercase fw-bold small text-muted mb-3">Today's Patients</h6>
+            <h2 class="mb-0">{{ today_appointments.count }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-4 border-0 shadow-sm border-start border-warning border-4">
+            <h6 class="text-uppercase fw-bold small text-muted mb-3">Pending Requests</h6>
+            <h2 class="mb-0">{{ pending_appointments }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-4 border-0 shadow-sm border-start border-success border-4">
+            <h6 class="text-uppercase fw-bold small text-muted mb-3">Total consultations</h6>
+            <h2 class="mb-0">{{ total_appointments }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-4 border-0 shadow-sm border-start border-info border-4">
+            <h6 class="text-uppercase fw-bold small text-muted mb-3">Total Earnings</h6>
+            <h2 class="mb-0">₹{{ total_earnings }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Pending Approvals Card -->
+        <div class="card p-4 shadow-sm border-0 mb-4 bg-warning-subtle border-start border-warning border-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h5 class="fw-bold mb-0 text-warning-emphasis"><i class="bi bi-clock-history me-2"></i>Pending
+                        Approvals</h5>
+                    <p class="extra-small text-warning-emphasis opacity-75 mb-0">Appointments awaiting your confirmation
+                    </p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="{% url 'doctors:pending_appointments' %}"
+                        class="btn btn-sm btn-warning rounded-pill fw-bold shadow-sm">
+                        View Full List <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            {% if pending_list %}
+            <div class="pending-list">
+                {% for appointment in pending_list %}
+                <div class="d-flex align-items-center p-3 mb-3 bg-white rounded-4 border shadow-sm">
+                    <div class="avatar-md bg-light rounded-circle d-flex align-items-center justify-content-center border me-3"
+                        style="width: 50px; height: 50px;">
+                        <i class="bi bi-person fs-4"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h6 class="mb-0 fw-bold">{{ appointment.patient.user.get_full_name }}</h6>
+
+                            <span class="extra-small text-muted fw-semibold">
+                                {{ appointment.appointment_date|date:"D, d M" }}
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <p class="extra-small text-muted mb-0 line-clamp-1 italic">
+                                "{{ appointment.reason|default:"No reason provided" }}"
+                            </p>
+                            {% if appointment.appointment_time %}
+                            <span class="badge bg-light text-primary border extra-small ms-2">
+                                <i class="bi bi-clock me-1"></i>{{ appointment.appointment_time|time:"h:i A" }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <span class="badge 
+                                {% if appointment.urgency_level == 'ROUTINE' %}bg-secondary-subtle text-secondary
+                                {% elif appointment.urgency_level == 'URGENT' %}bg-warning-subtle text-warning
+                                {% else %}bg-danger-subtle text-danger{% endif %} extra-small border">
+                                {{ appointment.get_urgency_level_display }}
+                            </span>
+                            <span class="badge bg-info-subtle text-info extra-small border">
+                                {% if appointment.consultation_type == 'VIDEO' %}<i class="bi bi-camera-video me-1"></i>
+                                {% elif appointment.consultation_type == 'AUDIO' %}<i class="bi bi-phone me-1"></i>
+                                {% else %}<i class="bi bi-building me-1"></i>{% endif %}
+                                {{ appointment.get_consultation_type_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 ps-3 border-start ms-2">
+                        <button type="button" class="btn btn-success btn-sm rounded-pill px-3 shadow-sm"
+                            data-bs-toggle="modal" data-bs-target="#approveModalDash"
+                            data-appointment-id="{{ appointment.id }}"
+                            data-patient-name="{{ appointment.patient.user.get_full_name }}"
+                            data-appointment-date="{{ appointment.appointment_date|date:'l, d M Y' }}">
+                            Approve
+                        </button>
+                        <form action="{% url 'doctors:reject_appointment' appointment.id %}" method="post"
+                            onsubmit="return confirm('Are you sure you want to reject this appointment?')">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm rounded-pill px-3 shadow-sm">
+                                Reject
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Single Approval Modal for Dashboard -->
+            <div class="modal fade" id="approveModalDash" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow rounded-4">
+                        <div class="modal-header border-0 pb-0">
+                            <h5 class="fw-bold">Set Appointment Time</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="modal-body py-4">
+                                <p class="text-muted small mb-4">Set the consultation time for <strong
+                                        class="patient-name-span">Loading...</strong> on <span
+                                        class="appointment-date-span">...</span>.</p>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold small text-muted text-uppercase">Select
+                                        Consultation Time Slot</label>
+                                    <select name="appointment_time" class="form-select slot-selector" required>
+                                        <option value="">Loading available slots...</option>
+                                    </select>
+                                    <div class="form-text extra-small text-muted mt-2">
+                                        <i class="bi bi-info-circle me-1"></i> Slots are based on your configured
+                                        availability and existing confirmed appointments.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer border-0 pt-0">
+                                <button type="button" class="btn btn-light rounded-pill px-4"
+                                    data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-success rounded-pill px-4">Confirm &
+                                    Notify</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center py-4 bg-white rounded-3 border">
+                <i class="bi bi-check2-circle fs-2 text-success d-block mb-2"></i>
+                <p class="text-muted mb-0">No pending requests!</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Today's Schedule Card -->
+        <div class="card p-4 shadow-sm border-0 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0">Today's Schedule</h5>
+                <a href="{% url 'doctors:manage_appointments' %}"
+                    class="btn btn-link btn-sm text-decoration-none fw-bold">View All Appointments</a>
+            </div>
+
+            {% if today_appointments %}
+            <div class="appointment-list">
+                {% for appointment in today_appointments %}
+                <div class="d-flex align-items-center p-3 mb-3 bg-light rounded-4 border">
+                    <div class="avatar-md bg-white rounded-circle d-flex align-items-center justify-content-center border me-3"
+                        style="width: 50px; height: 50px;">
+                        <i class="bi bi-person fs-4"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-0 fw-bold">{{ appointment.patient.user.get_full_name }}</h6>
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <span class="badge 
+                                {% if appointment.urgency_level == 'ROUTINE' %}bg-secondary-subtle text-secondary
+                                {% elif appointment.urgency_level == 'URGENT' %}bg-warning-subtle text-warning
+                                {% else %}bg-danger-subtle text-danger{% endif %} extra-small border">
+                                {{ appointment.get_urgency_level_display }}
+                            </span>
+                            <span class="badge bg-info-subtle text-info extra-small border">
+                                {% if appointment.consultation_type == 'VIDEO' %}<i class="bi bi-camera-video me-1"></i>
+                                {% elif appointment.consultation_type == 'AUDIO' %}<i class="bi bi-phone me-1"></i>
+                                {% else %}<i class="bi bi-building me-1"></i>{% endif %}
+                                {{ appointment.get_consultation_type_display }}
+                            </span>
+                            {% if appointment.attachment %}
+                            <a href="{{ appointment.attachment.url }}" target="_blank" class="text-primary"
+                                title="Download Report">
+                                <i class="bi bi-file-earmark-medical"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="text-center px-4 border-start border-end">
+                        <span class="fw-bold text-primary">{{ appointment.appointment_time }}</span>
+                        <div class="extra-small text-muted">Time</div>
+                    </div>
+                    <div class="ps-4">
+                        <a href="{% url 'consultations:start' appointment.id %}"
+                            class="btn btn-primary btn-sm rounded-pill px-3">Join Meeting</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-calendar-check fs-1 text-muted mb-3 d-block"></i>
+                <p class="text-muted">No appointments scheduled for today.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card p-4 shadow-sm border-0 mb-4">
+            <h5 class="fw-bold mb-4">Quick Stats</h5>
+            <div class="mb-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="small text-muted">Completion Rate</span>
+                    <span class="small fw-bold">{{ completion_rate }}%</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                    <div class="progress-bar bg-success" style="width: {{ completion_rate }}%"></div>
+                </div>
+            </div>
+            <div class="mb-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="small text-muted">Patient Satisfaction</span>
+                    <span class="small fw-bold">{{ doctor.rating|default:"5.0" }}/5.0</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                    <div class="progress-bar bg-warning" style="width: {{ rating_percentage }}%"></div>
+                </div>
+            </div>
+            <a href="{% url 'doctors:manage_appointments' %}"
+                class="btn btn-outline-dark btn-sm w-100 fw-bold mt-2">View Full Report</a>
+        </div>
+
+        <div class="card p-4 shadow-sm border-0 bg-primary text-white rounded-4 overflow-hidden position-relative">
+            <div class="position-absolute top-0 end-0 p-3 opacity-10">
+                <i class="bi bi-calendar-check display-4"></i>
+            </div>
+            <h3 class="fw-bold mb-3">Availability</h3> <br>
+            <p class="extra-small opacity-30 mb-4">Maintain your consultation hours to manage patient bookings.</p>
+            <a href="{% url 'doctors:manage_availability' %}"
+                class="btn btn-light btn-sm fw-bold w-100 rounded-pill py-2 text-dark shadow-sm">
+                MANAGE SCHEDULE
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

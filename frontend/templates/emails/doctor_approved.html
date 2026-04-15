@@ -1,0 +1,40 @@
+{% extends 'base_email.html' %}
+
+{% block content %}
+<div
+    style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <h2 style="color: #0d6efd; margin-bottom: 10px;">Congratulations, Dr. {{ user.last_name }}!</h2>
+        <div style="width: 50px; height: 3px; background-color: #0d6efd; margin: 0 auto;"></div>
+    </div>
+
+    <p>Hello <strong>{{ user.get_full_name }}</strong>,</p>
+
+    <p>We are pleased to inform you that your doctor profile on the <strong>Healthcare Portal</strong> has been reviewed
+        and <strong>approved</strong> by our administration team.</p>
+
+    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0;">
+        <p style="margin-top: 0;"><strong>What's Next?</strong></p>
+        <ul style="padding-left: 20px;">
+            <li style="margin-bottom: 10px;">You can now log in to your dashboard to manage appointments.</li>
+            <li style="margin-bottom: 10px;">Patients can now find your profile and book consultations.</li>
+            <li style="margin-bottom: 10px;">Make sure your availability schedule is up to date.</li>
+        </ul>
+    </div>
+
+    <div style="text-align: center; margin: 30px 0;">
+        <a href="{{ login_url }}"
+            style="background-color: #0d6efd; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Login
+            to Dashboard</a>
+    </div>
+
+    <p style="color: #6c757d; font-size: 0.9rem;">If you have any questions or need assistance, please contact our
+        support team.</p>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 30px 0;">
+
+    <p style="text-align: center; color: #adb5bd; font-size: 0.8rem;">
+        &copy; 2026 Healthcare Portal. All rights reserved.
+    </p>
+</div>
+{% endblock %}

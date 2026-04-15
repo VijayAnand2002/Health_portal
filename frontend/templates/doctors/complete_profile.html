@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block title %}Complete Your Profile - Doctor Onboarding{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <div class="bg-primary-subtle text-primary p-3 rounded-circle d-inline-block mb-3">
+                        <i class="bi bi-person-badge fs-1"></i>
+                    </div>
+                    <h2 class="fw-bold">Complete Your Profile</h2>
+                    <p class="text-muted">Please provide your professional details for verification.</p>
+                </div>
+
+                <form method="post" class="needs-validation">
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Specialization</label>
+                            {{ form.specialization }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Experience (Years)</label>
+                            {{ form.experience_years }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Medical License Number</label>
+                            {{ form.license_number }}
+                            <div class="form-text extra-small">This will be used for verification by our admin team.
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Qualifications</label>
+                            {{ form.qualifications }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Consultation Fee (₹)</label>
+                            {{ form.consultation_fee }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">About / Bio</label>
+                            {{ form.bio }}
+                        </div>
+
+                        <!-- Availability Section -->
+                        <div class="col-12 mt-4">
+                            <hr class="my-4 opacity-10">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-calendar-check me-2 text-primary"></i>Initial
+                                Weekly Availability</h5>
+                            <p class="text-muted small mb-4">Set your standard working hours and days. You can refine
+                                this later in your dashboard.</p>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small">Start Time</label>
+                                    {{ form.start_time }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small">End Time</label>
+                                    {{ form.end_time }}
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold small d-block mb-2">Available Days</label>
+                                    <div class="d-flex flex-wrap gap-3 p-3 bg-light rounded-4">
+                                        {% for choice in form.days_of_week %}
+                                        <div class="form-check">
+                                            {{ choice.tag }}
+                                            <label class="form-check-label small fw-medium"
+                                                for="{{ choice.id_for_label }}">
+                                                {{ choice.choice_label }}
+                                            </label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold">
+                            Submit for Verification
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .extra-small {
+        font-size: 0.75rem;
+    }
+</style>
+{% endblock %}

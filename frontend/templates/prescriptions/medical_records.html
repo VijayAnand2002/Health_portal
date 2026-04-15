@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Medical Records - HealthCare Portal{% endblock %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-md-8">
+        <h2 class="fw-bold">My Medical Records</h2>
+        <p class="text-muted">A secure repository for your prescriptions and lab reports.</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadRecordModal">
+            <i class="bi bi-cloud-arrow-up me-2"></i>Upload New Record
+        </button>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card p-4 shadow-sm border-0 mb-4">
+            <h5 class="fw-bold mb-4">Digital Prescriptions</h5>
+            {% if prescriptions %}
+            <div class="list-group list-group-flush">
+                {% for p in prescriptions %}
+                <div class="list-group-item border-0 bg-light rounded-4 mb-3 p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                                style="width: 45px; height: 45px;">
+                                <i class="bi bi-file-earmark-medical"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Prescription for {{ p.diagnosis|truncatechars:30 }}</h6>
+                                <span class="extra-small text-muted">Dr. {{ p.doctor.user.get_full_name }} | {{ p.created_at|date }}</span>
+                            </div>
+                        </div>
+                        <a href="{% url 'prescriptions:view_prescription' p.id %}"
+                            class="btn btn-outline-primary btn-sm rounded-pill px-3">View PDF</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-center text-muted py-5">No digital prescriptions found.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card p-4 shadow-sm border-0">
+            <h5 class="fw-bold mb-4">Lab Reports & Scans</h5>
+            {% if records %}
+            <div class="records-list">
+                {% for r in records %}
+                <div class="d-flex align-items-center justify-content-between p-3 border-bottom mb-2">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-file-earmark-pdf text-danger fs-4 me-3"></i>
+                        <div>
+                            <h6 class="mb-0 fw-bold small">{{ r.title }}</h6>
+                            <span class="extra-small text-muted">{{ r.get_record_type_display }} | {{ r.record_date|date }}</span>
+                        </div>
+                    </div>
+                    <a href="{{ r.document.url }}" class="btn btn-link py-0 text-decoration-none" download><i
+                            class="bi bi-download"></i></a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-center text-muted py-5">No reports uploaded yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadRecordModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg p-4">
+            <h4 class="fw-bold mb-4">Upload Medical Record</h4>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+                {% endfor %}
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary fw-bold py-2">UPLOAD RECORD</button>
+                    <button type="button" class="btn btn-link text-muted small mt-2"
+                        data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

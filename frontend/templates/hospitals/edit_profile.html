@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile - {{ hospital.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'hospitals:dashboard' %}" class="text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Edit Profile</li>
+                </ol>
+            </nav>
+
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white py-4 border-0">
+                    <h4 class="fw-bold mb-0"><i class="bi bi-pencil-square me-2"></i>Edit Hospital Profile</h4>
+                    <p class="mb-0 opacity-75 small">Update your facility details and contact information</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row g-4">
+                            <!-- Basic Info -->
+                            <div class="col-12">
+                                <h5 class="fw-bold text-primary border-bottom pb-2 mb-3">Basic Information</h5>
+                            </div>
+                            
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Hospital Name</label>
+                                {{ form.name }}
+                                {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Email Address</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Phone Number</label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}<div class="text-danger small">{{ form.phone.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Description</label>
+                                {{ form.description }}
+                                {% if form.description.errors %}<div class="text-danger small">{{ form.description.errors }}</div>{% endif %}
+                            </div>
+
+                            <!-- Address -->
+                            <div class="col-12 mt-4">
+                                <h5 class="fw-bold text-primary border-bottom pb-2 mb-3">Location & Address</h5>
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Address Line 1</label>
+                                {{ form.address_line1 }}
+                                {% if form.address_line1.errors %}<div class="text-danger small">{{ form.address_line1.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Address Line 2 (Optional)</label>
+                                {{ form.address_line2 }}
+                                {% if form.address_line2.errors %}<div class="text-danger small">{{ form.address_line2.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">City</label>
+                                {{ form.city }}
+                                {% if form.city.errors %}<div class="text-danger small">{{ form.city.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">State</label>
+                                {{ form.state }}
+                                {% if form.state.errors %}<div class="text-danger small">{{ form.state.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Pincode</label>
+                                {{ form.pincode }}
+                                {% if form.pincode.errors %}<div class="text-danger small">{{ form.pincode.errors }}</div>{% endif %}
+                            </div>
+
+                            <!-- Features -->
+                            <div class="col-12 mt-4">
+                                <h5 class="fw-bold text-primary border-bottom pb-2 mb-3">Facilities & Specializations</h5>
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Available Facilities</label>
+                                {{ form.facilities }}
+                                <div class="form-text extra-small">Separate with commas (e.g. ICU, Emergency, Pharmacy)</div>
+                                {% if form.facilities.errors %}<div class="text-danger small">{{ form.facilities.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Medical Specializations</label>
+                                {{ form.specializations }}
+                                <div class="form-text extra-small">Separate with commas (e.g. Cardiology, Pediatrics)</div>
+                                {% if form.specializations.errors %}<div class="text-danger small">{{ form.specializations.errors }}</div>{% endif %}
+                            </div>
+
+                            <!-- Media -->
+                            <div class="col-12 mt-4">
+                                <h5 class="fw-bold text-primary border-bottom pb-2 mb-3">Branding</h5>
+                            </div>
+
+                            <div class="col-12 mb-4">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Hospital Logo</label>
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        {% if hospital.logo %}
+                                        <img src="{{ hospital.logo.url }}" alt="Current Logo" class="rounded-3 border" style="width: 80px; height: 80px; object-fit: cover;">
+                                        {% else %}
+                                        <div class="bg-light text-muted rounded-3 border d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                            <i class="bi bi-image fs-1"></i>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col">
+                                        {{ form.logo }}
+                                        <div class="form-text extra-small">Upload a clear logo (PNG, JPG)</div>
+                                    </div>
+                                </div>
+                                {% if form.logo.errors %}<div class="text-danger small">{{ form.logo.errors }}</div>{% endif %}
+                            </div>
+
+                            <div class="col-12 text-end mt-5">
+                                <a href="{% url 'hospitals:dashboard' %}" class="btn btn-light px-4 me-2">Cancel</a>
+                                <button type="submit" class="btn btn-primary px-5 fw-bold">Save Changes</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

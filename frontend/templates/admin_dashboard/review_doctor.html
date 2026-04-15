@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block title %}Review Doctor Profile - Admin Console{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex align-items-center mb-4">
+        <a href="{% url 'admin_dashboard:manage_users' %}" class="btn btn-outline-secondary btn-sm me-3 border-0">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+        <h2 class="fw-bold mb-0">Review Doctor Profile</h2>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body text-center py-5">
+                    {% if target_user.profile_picture %}
+                    <img src="{{ target_user.profile_picture.url }}"
+                        class="rounded-circle mb-3 border border-3 border-primary-subtle"
+                        style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                    <div class="avatar-lg bg-primary-subtle text-primary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                        style="width: 150px; height: 150px; font-size: 3rem;">
+                        {{ target_user.first_name|first|default:target_user.username|first }}
+                    </div>
+                    {% endif %}
+                    <h4 class="fw-bold mb-1">{{ target_user.get_full_name|default:target_user.username }}</h4>
+                    <p class="text-muted mb-3">{{ profile.specialization }}</p>
+
+                    <div class="d-grid gap-2">
+                        {% if not target_user.is_approved %}
+                        <a href="{% url 'admin_dashboard:approve_doctor' target_user.id %}"
+                            class="btn btn-primary fw-bold">Approve Doctor</a>
+                        {% else %}
+                        <button class="btn btn-success fw-bold" disabled><i class="bi bi-patch-check-fill"></i> Already
+                            Approved</button>
+                        {% endif %}
+
+                        <a href="{% url 'admin_dashboard:toggle_user_status' target_user.id %}"
+                            class="btn {% if target_user.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
+                            {% if target_user.is_active %}Suspend Account{% else %}Activate Account{% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Contact Information</h6>
+                    <div class="mb-3 d-flex align-items-center">
+                        <i class="bi bi-envelope text-muted me-3"></i>
+                        <div>
+                            <div class="text-muted small">Email Address</div>
+                            <div class="fw-medium">{{ target_user.email }}</div>
+                        </div>
+                    </div>
+                    <div class="mb-3 d-flex align-items-center">
+                        <i class="bi bi-phone text-muted me-3"></i>
+                        <div>
+                            <div class="text-muted small">Phone Number</div>
+                            <div class="fw-medium">{{ target_user.phone|default:"Not provided" }}</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-geo-alt text-muted me-3"></i>
+                        <div>
+                            <div class="text-muted small">Address</div>
+                            <div class="fw-medium">{{ target_user.address|default:"Not provided" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0">Professional Credentials</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small d-block mb-1">License Number</label>
+                            <div class="p-2 bg-light rounded fw-bold border">{{ profile.license_number }}</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small d-block mb-1">Years of Experience</label>
+                            <div class="p-2 bg-light rounded fw-bold border">{{ profile.experience_years }} Years</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small d-block mb-1">Consultation Fee</label>
+                            <div class="p-2 bg-light rounded fw-bold border">₹ {{ profile.consultation_fee }}</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small d-block mb-1">Appointment Duration</label>
+                            <div class="p-2 bg-light rounded fw-bold border">{{ profile.consultation_duration }} Minutes
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="text-muted small d-block mb-1">Qualifications</label>
+                        <div class="p-3 bg-light rounded border">{{ profile.qualifications|linebreaks }}</div>
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="text-muted small d-block mb-1">Biography</label>
+                        <div class="p-3 bg-light rounded border">{{ profile.bio|default:"No bio provided."|linebreaks }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0">Weekly Availability Schedule</h5>
+                </div>
+                <div class="card-body">
+                    {% if availability %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr class="text-muted small fw-bold">
+                                    <th>Day</th>
+                                    <th>Status</th>
+                                    <th>Working Hours</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for day_avail in availability %}
+                                <tr>
+                                    <td class="fw-bold">{{ day_avail.day|title }}</td>
+                                    <td>
+                                        {% if day_avail.is_available %}
+                                        <span class="badge bg-success-subtle text-success">Available</span>
+                                        {% else %}
+                                        <span class="badge bg-danger-subtle text-danger">Unavailable</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if day_avail.is_available %}
+                                        {{ day_avail.start_time|time:"h:i A" }} - {{ day_avail.end_time|time:"h:i A" }}
+                                        {% else %}
+                                        ---
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4 bg-light rounded border border-dashed">
+                        <i class="bi bi-calendar-x text-muted mb-2 d-inline-block" style="font-size: 2rem;"></i>
+                        <p class="text-muted mb-0 italic">No availability schedule has been set yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0">Hospital Affiliations</h5>
+                </div>
+                <div class="card-body">
+                    {% if profile.hospitals.all %}
+                    <div class="list-group list-group-flush">
+                        {% for hospital in profile.hospitals.all %}
+                        <div class="list-group-item px-0 border-0 d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary-subtle text-primary rounded p-2 me-3">
+                                    <i class="bi bi-hospital"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0">{{ hospital.name }}</h6>
+                                    <span class="small text-muted">{{ hospital.location }}</span>
+                                </div>
+                            </div>
+                            {% if hospital.is_verified %}
+                            <span class="badge bg-success-subtle text-success">Verified</span>
+                            {% else %}
+                            <span class="badge bg-warning-subtle text-warning">Pending Verification</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0 italic">No hospital affiliations listed.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
